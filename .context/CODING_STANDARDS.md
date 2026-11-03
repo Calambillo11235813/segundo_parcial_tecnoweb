@@ -4,9 +4,10 @@
 * **Límite de líneas por archivo:** Ningún archivo debe exceder las **150 - 200 líneas de código**. Si una clase, controlador o componente crece más allá de este límite, debe modularizarse (dividir en subcomponentes, Form Requests, Services o Traits).
 * **Idioma del código:**
   * Variables, métodos, tablas y columnas en español/snake_case o camelCase según el lenguaje, respetando el contrato estricto de la base de datos existente (`ESQUEMA_DB.sql`).
-* **Documentación y comentarios:**
+* **Documentación y comentarios en español (OBLIGATORIO):**
+  * **Todos los comentarios en el código (DocBlocks, explicaciones de métodos, funciones, componentes y comentarios de línea) deben estar 100% en español.** Está estrictamente prohibido dejar comentarios en inglés generados por plantillas automáticas.
   * Cada archivo debe iniciar con un bloque de comentario indicando el propósito y el Caso de Uso asociado (ej. `CU-01`, `CU-05`).
-  * Los métodos deben incluir comentarios concisos describiendo entradas, salidas y reglas de negocio aplicadas.
+  * Los métodos y funciones deben incluir comentarios concisos en español describiendo entradas, salidas y reglas de negocio aplicadas.
 
 ---
 
@@ -14,7 +15,7 @@
 * **Base de datos heredada / existente:**
   * **PROHIBIDO** asumir llaves primarias por defecto `id`. Cada modelo Eloquent DEBE definir explícitamente:
     ```php
-    protected $table = 'nombre_tabla';
+    protected $table = 'feder.nombre_tabla';
     protected $primaryKey = 'id_columna';
     public $timestamps = false; // o true solo si existen created_at y updated_at
     ```
@@ -39,5 +40,5 @@
 ---
 
 ## 4. Trazabilidad y Seguridad
-* **Auditoría:** Cada operación de inserción, actualización o eliminación crítica en tablas del CMS o Donaciones debe registrar su traza en la tabla `AUDITORIA` mediante observadores (Observers) o Middleware.
+* **Auditoría:** Cada operación de inserción, actualización o eliminación crítica en tablas del CMS o Donaciones debe registrar su traza en la tabla `feder.auditoria` mediante el modelo `Auditoria` o Middleware.
 * **Control de Acceso:** Proteger las rutas con Middleware validando los roles (`Director`, `Secretaria`, `Instructor`) según la matriz de casos de uso.
