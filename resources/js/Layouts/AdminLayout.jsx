@@ -64,14 +64,22 @@ export default function AdminLayout({ title, children }) {
                         <span className="mr-3">📊</span> Dashboard
                     </Link>
 
-                    {/* Módulo exclusivo para el rol Director */}
+                    {/* Módulos exclusivos para el rol Director */}
                     {roleName.toLowerCase() === 'director' && (
-                        <Link
-                            href={route('admin.usuarios.index')}
-                            className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.usuarios.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                        >
-                            <span className="mr-3">👥</span> Usuarios y Roles
-                        </Link>
+                        <>
+                            <Link
+                                href={route('admin.usuarios.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.usuarios.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">👥</span> Usuarios y Roles
+                            </Link>
+                            <Link
+                                href={route('admin.institucional.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.institucional.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">🏛️</span> Información Inst.
+                            </Link>
+                        </>
                     )}
 
                     <div className="pt-4 pb-1">
@@ -79,10 +87,6 @@ export default function AdminLayout({ title, children }) {
                     </div>
 
                     <div className="px-3 py-2 text-xs text-slate-400 space-y-2">
-                        <div className="flex justify-between items-center opacity-60">
-                            <span>🏛️ Información Inst.</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-02</span>
-                        </div>
                         <div className="flex justify-between items-center opacity-60">
                             <span>📰 Publicaciones</span>
                             <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-03</span>
@@ -121,6 +125,14 @@ export default function AdminLayout({ title, children }) {
                         <h1 className="text-xl font-bold text-slate-800">{title || 'Panel de Administración'}</h1>
                     </div>
                     <div className="flex items-center space-x-4">
+                        <Link
+                            href={route('public.nosotros')}
+                            className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                            title="Ver portal público"
+                        >
+                            <span>🌐</span>
+                            <span>Ver Portal Público</span>
+                        </Link>
                         <div className="hidden sm:block text-right">
                             <span className="block text-sm font-semibold text-slate-700">{user?.nombre_completo}</span>
                             <span className="block text-xs text-slate-500">{user?.correo_electronico}</span>
