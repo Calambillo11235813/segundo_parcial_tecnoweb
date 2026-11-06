@@ -82,15 +82,29 @@ export default function AdminLayout({ title, children }) {
                         </>
                     )}
 
+                    {/* Módulos para Director e Instructor (CU-03) */}
+                    {['director', 'instructor'].includes(roleName.toLowerCase()) && (
+                        <>
+                            <Link
+                                href={route('admin.noticias.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.noticias.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">📰</span> Publicaciones
+                            </Link>
+                            <Link
+                                href={route('admin.testimonios.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.testimonios.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">💬</span> Testimonios
+                            </Link>
+                        </>
+                    )}
+
                     <div className="pt-4 pb-1">
-                        <p className="px-3 text-[11px] uppercase tracking-wider text-slate-400 font-bold">Módulos del Sistema</p>
+                        <p className="px-3 text-[11px] uppercase tracking-wider text-slate-400 font-bold">Módulos en Desarrollo</p>
                     </div>
 
                     <div className="px-3 py-2 text-xs text-slate-400 space-y-2">
-                        <div className="flex justify-between items-center opacity-60">
-                            <span>📰 Publicaciones</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-03</span>
-                        </div>
                         <div className="flex justify-between items-center opacity-60">
                             <span>🌾 Comunidades</span>
                             <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-04</span>

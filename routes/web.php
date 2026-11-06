@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GaleriaController;
 use App\Http\Controllers\Admin\InstitucionalController;
+use App\Http\Controllers\Admin\NoticiaController;
+use App\Http\Controllers\Admin\TestimonioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Public\PublicNoticiaController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -17,6 +21,8 @@ Route::get('/', function () {
 
 // Rutas Públicas (Visitante / Donante)
 Route::get('/nosotros', [InstitucionalController::class, 'showPublic'])->name('public.nosotros');
+Route::get('/noticias', [PublicNoticiaController::class, 'index'])->name('public.noticias.index');
+Route::get('/noticias/{id}', [PublicNoticiaController::class, 'show'])->name('public.noticias.show');
 
 // Autenticación (CU-01)
 Route::middleware('guest')->group(function () {
@@ -53,6 +59,27 @@ Route::middleware('auth')->group(function () {
             Route::post('/institucional/redes', [InstitucionalController::class, 'storeRed'])->name('institucional.redes.store');
             Route::put('/institucional/redes/{id}', [InstitucionalController::class, 'updateRed'])->name('institucional.redes.update');
             Route::delete('/institucional/redes/{id}', [InstitucionalController::class, 'destroyRed'])->name('institucional.redes.destroy');
+        });
+
+        // CU-03: Publicaciones, Galerías y Testimonios (Director e Instructor)
+        Route::middleware('role:Director,Instructor')->group(function () {
+            // Gestión de Noticias
+            Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
+            Route::get('/noticias/crear', [NoticiaController::class, 'create'])->name('noticias.create');
+            Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
+            Route::get('/noticias/{id}/editar', [NoticiaController::class, 'edit'])->name('noticias.edit');
+            Route::put('/noticias/{id}', [NoticiaController::class, 'update'])->name('noticias.update');
+            Route::delete('/noticias/{id}', [NoticiaController::class, 'destroy'])->name('noticias.destroy');
+
+            // Galería Multimedia asociada a Noticias
+            Route::post('/noticias/{id}/galeria', [GaleriaController::class, 'store'])->name('noticias.galeria.store');
+            Route::delete('/galeria/{id}', [GaleriaController::class, 'destroy'])->name('galeria.destroy');
+
+            // Gestión de Testimonios Comunitarios
+            Route::get('/testimonios', [TestimonioController::class, 'index'])->name('testimonios.index');
+            Route::post('/testimonios', [TestimonioController::class, 'store'])->name('testimonios.store');
+            Route::put('/testimonios/{id}', [TestimonioController::class, 'update'])->name('testimonios.update');
+            Route::delete('/testimonios/{id}', [TestimonioController::class, 'destroy'])->name('testimonios.destroy');
         });
     });
 });

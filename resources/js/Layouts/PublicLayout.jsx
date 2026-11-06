@@ -31,8 +31,11 @@ export default function PublicLayout({ children }) {
 
                     {/* Enlaces de Navegación Principal */}
                     <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
-                        <Link href="/nosotros" className="hover:text-emerald-700 transition">
+                        <Link href="/nosotros" className={`hover:text-emerald-700 transition ${route().current('public.nosotros') ? 'text-emerald-700 font-bold' : ''}`}>
                             Quiénes Somos
+                        </Link>
+                        <Link href="/noticias" className={`hover:text-emerald-700 transition ${route().current('public.noticias.*') ? 'text-emerald-700 font-bold' : ''}`}>
+                            Noticias y Medios
                         </Link>
                     </nav>
 
@@ -111,6 +114,7 @@ export default function PublicLayout({ children }) {
                         </h4>
                         <ul className="space-y-1.5">
                             <li><Link href="/nosotros" className="hover:text-white transition">Nuestra Misión y Visión</Link></li>
+                            <li><Link href="/noticias" className="hover:text-white transition">Noticias y Publicaciones</Link></li>
                             <li><Link href={route('login')} className="hover:text-emerald-400 transition">Panel de Administración</Link></li>
                         </ul>
                     </div>
