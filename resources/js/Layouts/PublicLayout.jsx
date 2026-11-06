@@ -34,6 +34,12 @@ export default function PublicLayout({ children }) {
                         <Link href="/nosotros" className={`hover:text-emerald-700 transition ${route().current('public.nosotros') ? 'text-emerald-700 font-bold' : ''}`}>
                             Quiénes Somos
                         </Link>
+                        <Link href="/comunidades" className={`hover:text-emerald-700 transition ${route().current('public.comunidades.*') ? 'text-emerald-700 font-bold' : ''}`}>
+                            Comunidades
+                        </Link>
+                        <Link href="/campanas" className={`hover:text-emerald-700 transition ${route().current('public.campanas.*') ? 'text-emerald-700 font-bold' : ''}`}>
+                            Campañas
+                        </Link>
                         <Link href="/noticias" className={`hover:text-emerald-700 transition ${route().current('public.noticias.*') ? 'text-emerald-700 font-bold' : ''}`}>
                             Noticias y Medios
                         </Link>
@@ -72,9 +78,12 @@ export default function PublicLayout({ children }) {
                         )}
 
                         {/* Botón de Acción Principal (Donaciones) */}
-                        <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow transition cursor-pointer">
+                        <Link
+                            href={route('public.campanas.index')}
+                            className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow transition"
+                        >
                             ❤️ Donar
-                        </span>
+                        </Link>
                     </div>
                 </div>
             </header>
@@ -114,6 +123,8 @@ export default function PublicLayout({ children }) {
                         </h4>
                         <ul className="space-y-1.5">
                             <li><Link href="/nosotros" className="hover:text-white transition">Nuestra Misión y Visión</Link></li>
+                            <li><Link href="/comunidades" className="hover:text-white transition">Comunidades y Programas</Link></li>
+                            <li><Link href="/campanas" className="hover:text-white transition">Campañas de Crowdfunding</Link></li>
                             <li><Link href="/noticias" className="hover:text-white transition">Noticias y Publicaciones</Link></li>
                             <li><Link href={route('login')} className="hover:text-emerald-400 transition">Panel de Administración</Link></li>
                         </ul>

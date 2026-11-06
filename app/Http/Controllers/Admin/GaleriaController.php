@@ -35,7 +35,7 @@ class GaleriaController extends Controller
 
         $item = GaleriaMultimedia::create($data);
 
-        Auditoria::registrar("CREACION_MULTIMEDIA [{$item->titulo} - {$item->tipo}]", 'GALERIA_MULTIMEDIA', $item->id_multimedia);
+        Auditoria::registrar("CREACION_MULTIMEDIA [{$item->titulo} - {$item->tipo}]", 'GALERIA_MULTIMEDIA');
 
         return redirect()->back()
             ->with('success', "Recurso multimedia \"{$item->titulo}\" añadido a la galería.");
@@ -56,7 +56,7 @@ class GaleriaController extends Controller
 
         $multimedia->delete();
 
-        Auditoria::registrar("ELIMINACION_MULTIMEDIA [{$titulo}]", 'GALERIA_MULTIMEDIA', $id);
+        Auditoria::registrar("ELIMINACION_MULTIMEDIA [{$titulo}]", 'GALERIA_MULTIMEDIA');
 
         return redirect()->back()
             ->with('success', "Elemento \"{$titulo}\" eliminado de la galería.");

@@ -1,12 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin\CampanaController;
+use App\Http\Controllers\Admin\ComunidadController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GaleriaController;
 use App\Http\Controllers\Admin\InstitucionalController;
 use App\Http\Controllers\Admin\NoticiaController;
+use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\TestimonioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Public\PublicCampanaController;
+use App\Http\Controllers\Public\PublicComunidadController;
 use App\Http\Controllers\Public\PublicNoticiaController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +28,10 @@ Route::get('/', function () {
 Route::get('/nosotros', [InstitucionalController::class, 'showPublic'])->name('public.nosotros');
 Route::get('/noticias', [PublicNoticiaController::class, 'index'])->name('public.noticias.index');
 Route::get('/noticias/{id}', [PublicNoticiaController::class, 'show'])->name('public.noticias.show');
+Route::get('/comunidades', [PublicComunidadController::class, 'index'])->name('public.comunidades.index');
+Route::get('/comunidades/{id}', [PublicComunidadController::class, 'show'])->name('public.comunidades.show');
+Route::get('/campanas', [PublicCampanaController::class, 'index'])->name('public.campanas.index');
+Route::get('/campanas/{id}', [PublicCampanaController::class, 'show'])->name('public.campanas.show');
 
 // Autenticación (CU-01)
 Route::middleware('guest')->group(function () {
@@ -59,6 +68,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/institucional/redes', [InstitucionalController::class, 'storeRed'])->name('institucional.redes.store');
             Route::put('/institucional/redes/{id}', [InstitucionalController::class, 'updateRed'])->name('institucional.redes.update');
             Route::delete('/institucional/redes/{id}', [InstitucionalController::class, 'destroyRed'])->name('institucional.redes.destroy');
+
+            // CU-05: Campañas de Recaudación (Crowdfunding - Exclusivo Director)
+            Route::get('/campanas', [CampanaController::class, 'index'])->name('campanas.index');
+            Route::get('/campanas/crear', [CampanaController::class, 'create'])->name('campanas.create');
+            Route::post('/campanas', [CampanaController::class, 'store'])->name('campanas.store');
+            Route::get('/campanas/{id}/editar', [CampanaController::class, 'edit'])->name('campanas.edit');
+            Route::put('/campanas/{id}', [CampanaController::class, 'update'])->name('campanas.update');
+            Route::patch('/campanas/{id}/cerrar', [CampanaController::class, 'cerrar'])->name('campanas.cerrar');
         });
 
         // CU-03: Publicaciones, Galerías y Testimonios (Director e Instructor)
@@ -80,6 +97,15 @@ Route::middleware('auth')->group(function () {
             Route::post('/testimonios', [TestimonioController::class, 'store'])->name('testimonios.store');
             Route::put('/testimonios/{id}', [TestimonioController::class, 'update'])->name('testimonios.update');
             Route::delete('/testimonios/{id}', [TestimonioController::class, 'destroy'])->name('testimonios.destroy');
+
+            // CU-04: Comunidades Beneficiarias y Programas Productivos
+            Route::get('/comunidades', [ComunidadController::class, 'index'])->name('comunidades.index');
+            Route::post('/comunidades', [ComunidadController::class, 'store'])->name('comunidades.store');
+            Route::put('/comunidades/{id}', [ComunidadController::class, 'update'])->name('comunidades.update');
+            Route::delete('/comunidades/{id}', [ComunidadController::class, 'destroy'])->name('comunidades.destroy');
+            Route::post('/comunidades/{id}/programas', [ProgramaController::class, 'store'])->name('programas.store');
+            Route::put('/programas/{id}', [ProgramaController::class, 'update'])->name('programas.update');
+            Route::delete('/programas/{id}', [ProgramaController::class, 'destroy'])->name('programas.destroy');
         });
     });
 });

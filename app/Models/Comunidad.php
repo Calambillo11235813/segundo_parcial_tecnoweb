@@ -36,6 +36,22 @@ class Comunidad extends Model
     }
 
     /**
+     * Programas productivos ejecutados en esta comunidad (CU-04).
+     */
+    public function programas(): HasMany
+    {
+        return $this->hasMany(ProgramaProductivo::class, 'comunidad_id', 'id_comunidad');
+    }
+
+    /**
+     * Campañas de recaudación asociadas a esta comunidad (CU-05).
+     */
+    public function campanas(): HasMany
+    {
+        return $this->hasMany(Campana::class, 'comunidad_id', 'id_comunidad');
+    }
+
+    /**
      * Testimonios asociados a esta comunidad.
      */
     public function testimonios(): HasMany

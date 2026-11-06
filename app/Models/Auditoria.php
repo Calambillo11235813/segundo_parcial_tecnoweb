@@ -36,12 +36,13 @@ class Auditoria extends Model
 
     /**
      * Registra un evento de auditoría de forma rápida.
+     * Trunca los textos para respetar VARCHAR(100) y VARCHAR(50) del esquema físico.
      */
     public static function registrar(string $accion, string $tabla, ?int $usuarioId = null): self
     {
         return self::create([
-            'accion_realizada' => $accion,
-            'tabla_afectada'   => $tabla,
+            'accion_realizada' => mb_substr($accion, 0, 100),
+            'tabla_afectada'   => mb_substr($tabla, 0, 50),
             'fecha_hora'       => now(),
             'usuario_id'       => $usuarioId ?? auth()->id() ?? 1,
         ]);

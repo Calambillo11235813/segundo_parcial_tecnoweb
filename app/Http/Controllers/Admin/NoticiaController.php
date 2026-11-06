@@ -78,7 +78,7 @@ class NoticiaController extends Controller
 
         $noticia = Noticia::create($data);
 
-        Auditoria::registrar("CREACION_NOTICIA [{$noticia->titulo}]", 'NOTICIA', $noticia->id_noticia);
+        Auditoria::registrar("CREACION_NOTICIA [{$noticia->titulo}]", 'NOTICIA');
 
         return redirect()->route('admin.noticias.edit', $noticia->id_noticia)
             ->with('success', 'Publicación creada exitosamente. Ahora puedes añadir elementos a su galería.');
@@ -118,7 +118,7 @@ class NoticiaController extends Controller
 
         $noticia->update($data);
 
-        Auditoria::registrar("ACTUALIZACION_NOTICIA [ID: {$id}]", 'NOTICIA', $id);
+        Auditoria::registrar("ACTUALIZACION_NOTICIA [ID: {$id}]", 'NOTICIA');
 
         return redirect()->back()
             ->with('success', 'Publicación actualizada correctamente.');
@@ -147,7 +147,7 @@ class NoticiaController extends Controller
 
         $noticia->delete();
 
-        Auditoria::registrar("ELIMINACION_NOTICIA [{$titulo}]", 'NOTICIA', $id);
+        Auditoria::registrar("ELIMINACION_NOTICIA [{$titulo}]", 'NOTICIA');
 
         return redirect()->route('admin.noticias.index')
             ->with('success', "La noticia \"{$titulo}\" ha sido eliminada.");

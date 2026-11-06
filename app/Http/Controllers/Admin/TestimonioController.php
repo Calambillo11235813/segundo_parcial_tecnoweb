@@ -58,7 +58,7 @@ class TestimonioController extends Controller
 
         $testimonio = Testimonio::create($data);
 
-        Auditoria::registrar("CREACION_TESTIMONIO [{$testimonio->titulo}]", 'TESTIMONIO', $testimonio->id_testimonio);
+        Auditoria::registrar("CREACION_TESTIMONIO [{$testimonio->titulo}]", 'TESTIMONIO');
 
         return redirect()->back()
             ->with('success', "Testimonio \"{$testimonio->titulo}\" registrado exitosamente.");
@@ -82,7 +82,7 @@ class TestimonioController extends Controller
 
         $testimonio->update($data);
 
-        Auditoria::registrar("ACTUALIZACION_TESTIMONIO [ID: {$id}]", 'TESTIMONIO', $id);
+        Auditoria::registrar("ACTUALIZACION_TESTIMONIO [ID: {$id}]", 'TESTIMONIO');
 
         return redirect()->back()
             ->with('success', 'Testimonio actualizado correctamente.');
@@ -102,7 +102,7 @@ class TestimonioController extends Controller
 
         $testimonio->delete();
 
-        Auditoria::registrar("ELIMINACION_TESTIMONIO [{$titulo}]", 'TESTIMONIO', $id);
+        Auditoria::registrar("ELIMINACION_TESTIMONIO [{$titulo}]", 'TESTIMONIO');
 
         return redirect()->back()
             ->with('success', "Testimonio \"{$titulo}\" eliminado correctamente.");

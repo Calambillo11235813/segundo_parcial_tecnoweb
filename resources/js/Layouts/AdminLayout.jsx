@@ -79,6 +79,12 @@ export default function AdminLayout({ title, children }) {
                             >
                                 <span className="mr-3">🏛️</span> Información Inst.
                             </Link>
+                            <Link
+                                href={route('admin.campanas.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.campanas.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">🎯</span> Crowdfunding
+                            </Link>
                         </>
                     )}
 
@@ -97,6 +103,12 @@ export default function AdminLayout({ title, children }) {
                             >
                                 <span className="mr-3">💬</span> Testimonios
                             </Link>
+                            <Link
+                                href={route('admin.comunidades.index')}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.comunidades.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                            >
+                                <span className="mr-3">🌾</span> Comunidades
+                            </Link>
                         </>
                     )}
 
@@ -106,12 +118,8 @@ export default function AdminLayout({ title, children }) {
 
                     <div className="px-3 py-2 text-xs text-slate-400 space-y-2">
                         <div className="flex justify-between items-center opacity-60">
-                            <span>🌾 Comunidades</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-04</span>
-                        </div>
-                        <div className="flex justify-between items-center opacity-60">
-                            <span>🎯 Crowdfunding</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-05</span>
+                            <span>💳 Donaciones y Pagos</span>
+                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-06</span>
                         </div>
                     </div>
                 </nav>
