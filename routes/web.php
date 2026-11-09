@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AporteController;
 use App\Http\Controllers\Admin\CampanaController;
 use App\Http\Controllers\Admin\ComunidadController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\TestimonioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Public\PublicAporteController;
 use App\Http\Controllers\Public\PublicCampanaController;
 use App\Http\Controllers\Public\PublicComunidadController;
 use App\Http\Controllers\Public\PublicNoticiaController;
@@ -32,6 +34,10 @@ Route::get('/comunidades', [PublicComunidadController::class, 'index'])->name('p
 Route::get('/comunidades/{id}', [PublicComunidadController::class, 'show'])->name('public.comunidades.show');
 Route::get('/campanas', [PublicCampanaController::class, 'index'])->name('public.campanas.index');
 Route::get('/campanas/{id}', [PublicCampanaController::class, 'show'])->name('public.campanas.show');
+Route::get('/campanas/{id}/ficha-pdf', [PublicCampanaController::class, 'descargarFichaPdf'])->name('public.campanas.pdf');
+Route::get('/campanas/{id}/donar', [PublicAporteController::class, 'create'])->name('public.donaciones.create');
+Route::post('/campanas/{id}/donar', [PublicAporteController::class, 'store'])->name('public.donaciones.store');
+Route::get('/donaciones/{id}/comprobante', [PublicAporteController::class, 'comprobante'])->name('public.donaciones.comprobante');
 
 // Autenticación (CU-01)
 Route::middleware('guest')->group(function () {
@@ -106,6 +112,13 @@ Route::middleware('auth')->group(function () {
             Route::post('/comunidades/{id}/programas', [ProgramaController::class, 'store'])->name('programas.store');
             Route::put('/programas/{id}', [ProgramaController::class, 'update'])->name('programas.update');
             Route::delete('/programas/{id}', [ProgramaController::class, 'destroy'])->name('programas.destroy');
+        });
+
+        // CU-06: Gestión de Aportes y Donaciones (Director y Secretaria)
+        Route::middleware('role:Director,Secretaria')->group(function () {
+            Route::get('/aportes', [AporteController::class, 'index'])->name('aportes.index');
+            Route::patch('/aportes/{id}/confirmar', [AporteController::class, 'confirmar'])->name('aportes.confirmar');
+            Route::patch('/aportes/{id}/rechazar', [AporteController::class, 'rechazar'])->name('aportes.rechazar');
         });
     });
 });

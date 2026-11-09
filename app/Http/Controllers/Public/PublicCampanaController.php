@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campana;
+use App\Services\FichaTecnicaPdfService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,6 +72,22 @@ class PublicCampanaController extends Controller
 
         return Inertia::render('Public/Campanas/Show', [
             'campana' => $campana,
+        ]);
+    }
+
+    /**
+     * Descarga la ficha técnica del proyecto comunitario en formato PDF (CU-06, RF-13).
+     */
+    public function descargarFichaPdf(int $id, FichaTecnicaPdfService $pdfService): HttpResponse
+    {
+        $campana = Campana::with('comunidad')->findOrFail($id);
+        $pdfContent = $pdfService->generar($campana);
+
+        $nombreArchivo = 'ficha_tecnica_campana_' . $campana->id_campana . '.pdf';
+
+        return response($pdfContent, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $nombreArchivo . '"',
         ]);
     }
 }

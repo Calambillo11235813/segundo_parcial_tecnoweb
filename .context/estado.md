@@ -12,6 +12,30 @@
   - **CU-03:** Publicaciones, Galerías y Testimonios Comunitarios (CMS).
   - **CU-04:** Comunidades Beneficiarias y Programas Productivos.
   - **CU-05:** Gestión de Campañas de Recaudación (Crowdfunding Comunitario).
+  - **CU-06:** Gestión de Donaciones y Aportes (Comprobantes Preliminares y Fichas PDF).
+- **Archivos creados/modificados en CU-06:**
+  - **Modelos:**
+    - `app/Models/Aporte.php` (`feder.aporte`, PK `id_aporte`, constantes de estado y modalidad, atributo `codigo_comprobante`).
+    - `app/Models/Campana.php` (método `recalcularRecaudacion()` que consolida en tiempo real la suma exacta de aportes confirmados).
+  - **Servicios:**
+    - `app/Services/FichaTecnicaPdfService.php` (generador nativo de fichas técnicas oficiales en estándar PDF 1.4 binario, cuadro económico, objetivos y canales institucionales).
+  - **Notificaciones por Correo (SMTP):**
+    - `app/Mail/AporteAgradecimientoMail.php` (Mailable institucional con sobre, asunto y datos del donante).
+    - `resources/views/emails/aporte_agradecimiento.blade.php` (plantilla HTML de agradecimiento, desglose de aportes e instrucciones de pago).
+  - **Controladores y Form Requests:**
+    - `app/Http/Requests/AporteRequest.php` (validación de datos del donante, montos > 0, modalidad y campaña activa).
+    - `app/Http/Controllers/Public/PublicAporteController.php` (despliegue del formulario interactivo, procesamiento, despacho de correo con tolerancia de fallo SMTP y renderizado de comprobante).
+    - `app/Http/Controllers/Public/PublicCampanaController.php` (incorporación de `descargarFichaPdf` con stream de descarga directa).
+    - `app/Http/Controllers/Admin/AporteController.php` (bandeja para Director y Secretaria con métricas, filtros multidimensionales, confirmación y rechazo con ajuste automático de recaudación y auditoría).
+  - **Vistas React:**
+    - `Public/Campanas/Donar.jsx` (formulario con botones de monto rápido, pestañas de instrucciones para QR/Transferencia/Efectivo y enlace a la ficha técnica).
+    - `Public/Campanas/Comprobante.jsx` (recibo preliminar oficial con código único `#AP-00000X`, QR/datos bancarios y botón de impresión `window.print()`).
+    - `Admin/Aportes/Index.jsx` (panel administrativo con 4 tarjetas de indicadores, tabla de control de pagos y modal de confirmación).
+    - `Public/Campanas/Show.jsx` y `Components/CardCampana.jsx` actualizados con botones directos hacia el formulario de donación y descarga de ficha técnica.
+    - `Layouts/AdminLayout.jsx` actualizado con acceso a `💳 Aportes y Donaciones` para Director y Secretaria.
+  - **Rutas Registradas:**
+    - Públicas: `GET /campanas/{id}/ficha-pdf`, `GET /campanas/{id}/donar`, `POST /campanas/{id}/donar`, `GET /donaciones/{id}/comprobante`.
+    - Administrativas (`role:Director,Secretaria`): `GET /admin/aportes`, `PATCH /admin/aportes/{id}/confirmar`, `PATCH /admin/aportes/{id}/rechazar`.
 - **Archivos creados/modificados en CU-05:**
   - **Modelos:**
     - `app/Models/Aporte.php` (`feder.aporte`, PK: `id_aporte`, relación `belongsTo` Campana).
@@ -84,11 +108,11 @@
 | **CU-03** | Publicaciones, Galerías y Testimonios | Director, Instructor | **Implementado** |
 | **CU-04** | Comunidades y Programas Productivos | Director, Instructor | **Implementado** |
 | **CU-05** | Campañas de Recaudación (Crowdfunding) | Director | **Implementado** |
-| **CU-06** | Intenciones de Aporte y Donaciones | Director, Secretaria | Pendiente |
+| **CU-06** | Intenciones de Aporte y Donaciones | Director, Secretaria | **Implementado** |
 | **CU-07** | Bandeja de Consultas Ciudadanas | Director, Secretaria | Pendiente |
 | **CU-08** | Reportes Estadísticos y Exportación PDF | Director | Pendiente |
 
 ---
 
 ## 3. Próximos Pasos :
-- Iniciar la implementación del **CU-06: Intenciones de Aporte y Donaciones** (registro de aportes monetarios por donantes, modalidades de pago, validación y confirmación que impacta el `monto_recaudado` de las campañas del CU-05).
+- Iniciar la implementación del **CU-07: Bandeja de Consultas Ciudadanas** (formulario público de contacto/consultas, almacenamiento clasificado por estado en `feder.consulta`, bandeja administrativa para Director/Secretaria y respuesta institucional por correo SMTP).

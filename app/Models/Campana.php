@@ -77,5 +77,18 @@ class Campana extends Model
         $limite = $this->fecha_limite->startOfDay();
         return (int) $hoy->diffInDays($limite, false);
     }
+
+    /**
+     * Recalcula el monto recaudado consolidando exclusivamente los aportes confirmados (RF-10, CU-06).
+     */
+    public function recalcularRecaudacion(): void
+    {
+        $totalConfirmado = (float) $this->aportes()
+            ->where('estado', 'Confirmado')
+            ->sum('monto');
+
+        $this->monto_recaudado = $totalConfirmado;
+        $this->save();
+    }
 }
 

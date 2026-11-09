@@ -60,7 +60,7 @@ export default function CardCampana({ campana }) {
                 </Link>
 
                 <Link
-                    href={route('public.campanas.show', campana.id_campana)}
+                    href={route('public.donaciones.create', campana.id_campana)}
                     className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-xs transition"
                 >
                     ❤️ Donar a Campaña

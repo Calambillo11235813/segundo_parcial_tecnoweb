@@ -14,6 +14,16 @@ class Aporte extends Model
 {
     use HasFactory;
 
+    public const ESTADO_PENDIENTE = 'Pendiente de Confirmación';
+    public const ESTADO_CONFIRMADO = 'Confirmado';
+    public const ESTADO_RECHAZADO = 'Rechazado';
+
+    public const MODALIDADES = [
+        'Transferencia bancaria',
+        'QR',
+        'Efectivo',
+    ];
+
     protected $table = 'feder.aporte';
     protected $primaryKey = 'id_aporte';
     public $timestamps = false;
@@ -33,6 +43,8 @@ class Aporte extends Model
         'fecha_registro' => 'datetime',
     ];
 
+    protected $appends = ['codigo_comprobante'];
+
     /**
      * Campaña de financiamiento a la que se destina este aporte.
      */
@@ -40,5 +52,12 @@ class Aporte extends Model
     {
         return $this->belongsTo(Campana::class, 'campana_id', 'id_campana');
     }
-}
 
+    /**
+     * Genera un código formal de comprobante para el donante.
+     */
+    public function getCodigoComprobanteAttribute(): string
+    {
+        return 'AP-' . str_pad((string) $this->id_aporte, 6, '0', STR_PAD_LEFT);
+    }
+}

@@ -145,20 +145,37 @@ export default function Show({ campana }) {
                             {/* Botón de Donación o Mensaje */}
                             {esActiva ? (
                                 <div className="space-y-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => alert(`Gracias por su interés. Para canalizar su aporte a la campaña "${campana.titulo}", comuníquese con administración a: contacto@feder.org.bo o WhatsApp +591 (3) 334-5678.`)}
+                                    <Link
+                                        href={route('public.donaciones.create', campana.id_campana)}
                                         className="w-full py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-md transition text-center flex items-center justify-center gap-2"
                                     >
-                                        <span>❤️</span> Donar a este Plan Comunitario
-                                    </button>
+                                        <span>❤️</span> Aportar a este Plan Comunitario
+                                    </Link>
+                                    <a
+                                        href={route('public.campanas.pdf', campana.id_campana)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="w-full py-2.5 px-4 rounded-xl border border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs transition text-center flex items-center justify-center gap-2"
+                                    >
+                                        <span>📄</span> Descargar Ficha Técnica (PDF)
+                                    </a>
                                     <p className="text-[11px] text-center text-slate-400 leading-tight">
                                         Aportes transparentes supervisados por la Dirección de FEDER.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="p-4 rounded-xl bg-slate-100 text-center text-xs text-slate-600 font-medium">
-                                    Esta campaña ha concluido su período de recaudación activa.
+                                <div className="space-y-2">
+                                    <div className="p-4 rounded-xl bg-slate-100 text-center text-xs text-slate-600 font-medium">
+                                        Esta campaña ha concluido su período de recaudación activa.
+                                    </div>
+                                    <a
+                                        href={route('public.campanas.pdf', campana.id_campana)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs transition text-center flex items-center justify-center gap-2"
+                                    >
+                                        <span>📄</span> Descargar Expediente de Cierre (PDF)
+                                    </a>
                                 </div>
                             )}
 

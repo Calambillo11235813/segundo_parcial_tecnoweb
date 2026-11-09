@@ -15,17 +15,15 @@ export default function AdminLayout({ title, children }) {
         e.preventDefault();
         router.post(route('logout'));
     };
-
     const roleName = user?.rol?.nombre_rol || 'Usuario';
 
     // Obtiene el color de la insignia según el rol asignado
     const getRoleBadgeColor = (role) => {
-        switch (role?.toLowerCase()) {
-            case 'director': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-            case 'secretaria': return 'bg-blue-100 text-blue-800 border-blue-300';
-            case 'instructor': return 'bg-amber-100 text-amber-800 border-amber-300';
-            default: return 'bg-slate-100 text-slate-800 border-slate-300';
-        }
+        const r = role?.toLowerCase();
+        if (r === 'director') return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        if (r === 'secretaria') return 'bg-blue-100 text-blue-800 border-blue-300';
+        if (r === 'instructor') return 'bg-amber-100 text-amber-800 border-amber-300';
+        return 'bg-slate-100 text-slate-800 border-slate-300';
     };
 
     return (
@@ -88,7 +86,7 @@ export default function AdminLayout({ title, children }) {
                         </>
                     )}
 
-                    {/* Módulos para Director e Instructor (CU-03) */}
+                    {/* Módulos para Director e Instructor (CU-03 y CU-04) */}
                     {['director', 'instructor'].includes(roleName.toLowerCase()) && (
                         <>
                             <Link
@@ -112,14 +110,24 @@ export default function AdminLayout({ title, children }) {
                         </>
                     )}
 
+                    {/* Módulos para Director y Secretaria (CU-06) */}
+                    {['director', 'secretaria'].includes(roleName.toLowerCase()) && (
+                        <Link
+                            href={route('admin.aportes.index')}
+                            className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.aportes.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <span className="mr-3">💳</span> Aportes y Donaciones
+                        </Link>
+                    )}
+
                     <div className="pt-4 pb-1">
                         <p className="px-3 text-[11px] uppercase tracking-wider text-slate-400 font-bold">Módulos en Desarrollo</p>
                     </div>
 
                     <div className="px-3 py-2 text-xs text-slate-400 space-y-2">
                         <div className="flex justify-between items-center opacity-60">
-                            <span>💳 Donaciones y Pagos</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-06</span>
+                            <span>📬 Consultas Ciudadanas</span>
+                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-07</span>
                         </div>
                     </div>
                 </nav>
