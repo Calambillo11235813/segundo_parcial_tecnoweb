@@ -9,6 +9,8 @@ const ESTILOS = {
     activa: 'bg-green-100 text-green-800 border-green-200',
     publicado: 'bg-green-100 text-green-800 border-green-200',
     confirmado: 'bg-green-100 text-green-800 border-green-200',
+    atendido: 'bg-green-100 text-green-800 border-green-200',
+    atendida: 'bg-green-100 text-green-800 border-green-200',
     pendiente: 'bg-amber-100 text-amber-800 border-amber-200',
     borrador: 'bg-amber-100 text-amber-800 border-amber-200',
     'en proceso': 'bg-blue-100 text-blue-800 border-blue-200',

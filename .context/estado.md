@@ -1,6 +1,6 @@
 # Estado del Proyecto - Portal FEDER
 
-**Fecha de última actualización:** 6 de Noviembre de 2026  
+**Fecha de última actualización:** 9 de Noviembre de 2026  
 **Stack:** Laravel 11 + Inertia.js v2 + React 18 + Tailwind CSS + PostgreSQL (Esquema: `feder`)
 
 ---
@@ -13,6 +13,19 @@
   - **CU-04:** Comunidades Beneficiarias y Programas Productivos.
   - **CU-05:** Gestión de Campañas de Recaudación (Crowdfunding Comunitario).
   - **CU-06:** Gestión de Donaciones y Aportes (Comprobantes Preliminares y Fichas PDF).
+  - **CU-07:** Gestión de Bandeja de Consultas Ciudadanas (Contacto y Respuesta SMTP).
+  - **CU-08:** Generación de Reportes Estadísticos y Exportación PDF (Tablero Directivo).
+- **Archivos creados/modificados en CU-08:**
+  - **Servicios:** `app/Services/ReporteRecaudacionPdfService.php` (generador nativo de reporte ejecutivo consolidado en estándar PDF 1.4 con indicadores globales, balance por campaña, desglose por modalidad de pago y resumen de atención ciudadana).
+  - **Controladores:** `app/Http/Controllers/Admin/ReporteController.php` (`index` con filtrado por comunidad, campaña y rango de fechas; `exportarRecaudacionPdf` con descarga stream PDF y auditoría).
+  - **Vistas React:** `Admin/Reportes/Index.jsx` (selector de categorías de análisis, filtros parametrizados, KPIs ejecutivos y matriz comparativa) y `Admin/Reportes/GraficosReportes.jsx` (gráficos interactivos de metas vs recaudación, distribución por modalidad, eficiencia de consultas y cobertura por comunidad).
+  - **Rutas y Navegación:** `GET /admin/reportes` (`admin.reportes.index`) y `GET /admin/reportes/recaudacion-pdf` (`admin.reportes.pdf`) bajo `role:Director`; enlace activo en `Layouts/AdminLayout.jsx`.
+- **Archivos creados/modificados en CU-07:**
+  - **Modelos:** `app/Models/Consulta.php` (`feder.consulta`, PK `id_consulta`, estados `Pendiente`, `En Proceso`, `Atendido`, relación `usuario()`).
+  - **Notificaciones por Correo (SMTP):** `app/Mail/RespuestaConsultaMail.php` y `resources/views/emails/respuesta_consulta.blade.php`.
+  - **Controladores y Form Requests:** `Public/PublicConsultaController.php` (`create`, `store`), `Admin/ConsultaController.php` (`index`, `show`, `cambiarEstado`, `responder`, semilla inicial), `StoreConsultaRequest.php`, `ResponderConsultaRequest.php`.
+  - **Vistas React y Componentes:** `Public/Contacto.jsx`, `Admin/Consultas/Index.jsx`, `Admin/Consultas/Show.jsx`, `Components/StatusBadge.jsx` (estados `atendido`/`atendida`), `Layouts/PublicLayout.jsx` y `Layouts/AdminLayout.jsx`.
+  - **Rutas Registradas:** Públicas `GET|POST /contacto`. Administrativas (`role:Director,Secretaria`): `GET /admin/consultas`, `GET /admin/consultas/{id}`, `POST /admin/consultas/{id}/responder`, `PATCH /admin/consultas/{id}/estado`.
 - **Archivos creados/modificados en CU-06:**
   - **Modelos:**
     - `app/Models/Aporte.php` (`feder.aporte`, PK `id_aporte`, constantes de estado y modalidad, atributo `codigo_comprobante`).
@@ -109,10 +122,10 @@
 | **CU-04** | Comunidades y Programas Productivos | Director, Instructor | **Implementado** |
 | **CU-05** | Campañas de Recaudación (Crowdfunding) | Director | **Implementado** |
 | **CU-06** | Intenciones de Aporte y Donaciones | Director, Secretaria | **Implementado** |
-| **CU-07** | Bandeja de Consultas Ciudadanas | Director, Secretaria | Pendiente |
-| **CU-08** | Reportes Estadísticos y Exportación PDF | Director | Pendiente |
+| **CU-07** | Bandeja de Consultas Ciudadanas | Director, Secretaria | **Implementado** |
+| **CU-08** | Reportes Estadísticos y Exportación PDF | Director | **Implementado** |
 
 ---
 
 ## 3. Próximos Pasos :
-- Iniciar la implementación del **CU-07: Bandeja de Consultas Ciudadanas** (formulario público de contacto/consultas, almacenamiento clasificado por estado en `feder.consulta`, bandeja administrativa para Director/Secretaria y respuesta institucional por correo SMTP).
+- Todos los 8 Casos de Uso (**CU-01 a CU-08**) del Portal Institucional y de Crowdfunding de la **Fundación FEDER** se encuentran **100% implementados y verificados**. Listo para pruebas integrales y defensa del proyecto.

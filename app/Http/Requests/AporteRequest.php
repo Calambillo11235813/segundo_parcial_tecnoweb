@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Aporte;
+use App\Models\Campana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,7 +33,7 @@ class AporteRequest extends FormRequest
             'campana_id'     => [
                 'required',
                 'integer',
-                Rule::exists('feder.campana', 'id_campana')->where(function ($query) {
+                Rule::exists(Campana::class, 'id_campana')->where(function ($query) {
                     $query->where('estado', 'Activa');
                 }),
             ],

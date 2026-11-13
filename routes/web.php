@@ -3,17 +3,20 @@
 use App\Http\Controllers\Admin\AporteController;
 use App\Http\Controllers\Admin\CampanaController;
 use App\Http\Controllers\Admin\ComunidadController;
+use App\Http\Controllers\Admin\ConsultaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GaleriaController;
 use App\Http\Controllers\Admin\InstitucionalController;
 use App\Http\Controllers\Admin\NoticiaController;
 use App\Http\Controllers\Admin\ProgramaController;
+use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Admin\TestimonioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Public\PublicAporteController;
 use App\Http\Controllers\Public\PublicCampanaController;
 use App\Http\Controllers\Public\PublicComunidadController;
+use App\Http\Controllers\Public\PublicConsultaController;
 use App\Http\Controllers\Public\PublicNoticiaController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +41,8 @@ Route::get('/campanas/{id}/ficha-pdf', [PublicCampanaController::class, 'descarg
 Route::get('/campanas/{id}/donar', [PublicAporteController::class, 'create'])->name('public.donaciones.create');
 Route::post('/campanas/{id}/donar', [PublicAporteController::class, 'store'])->name('public.donaciones.store');
 Route::get('/donaciones/{id}/comprobante', [PublicAporteController::class, 'comprobante'])->name('public.donaciones.comprobante');
+Route::get('/contacto', [PublicConsultaController::class, 'create'])->name('public.contacto.index');
+Route::post('/contacto', [PublicConsultaController::class, 'store'])->name('public.contacto.store');
 
 // Autenticación (CU-01)
 Route::middleware('guest')->group(function () {
@@ -82,6 +87,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/campanas/{id}/editar', [CampanaController::class, 'edit'])->name('campanas.edit');
             Route::put('/campanas/{id}', [CampanaController::class, 'update'])->name('campanas.update');
             Route::patch('/campanas/{id}/cerrar', [CampanaController::class, 'cerrar'])->name('campanas.cerrar');
+
+            // CU-08: Reportes Estadísticos y Exportación PDF (Exclusivo Director)
+            Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+            Route::get('/reportes/recaudacion-pdf', [ReporteController::class, 'exportarRecaudacionPdf'])->name('reportes.pdf');
         });
 
         // CU-03: Publicaciones, Galerías y Testimonios (Director e Instructor)
@@ -114,11 +123,16 @@ Route::middleware('auth')->group(function () {
             Route::delete('/programas/{id}', [ProgramaController::class, 'destroy'])->name('programas.destroy');
         });
 
-        // CU-06: Gestión de Aportes y Donaciones (Director y Secretaria)
+        // CU-06 y CU-07: Gestión de Aportes y Bandeja de Consultas (Director y Secretaria)
         Route::middleware('role:Director,Secretaria')->group(function () {
             Route::get('/aportes', [AporteController::class, 'index'])->name('aportes.index');
             Route::patch('/aportes/{id}/confirmar', [AporteController::class, 'confirmar'])->name('aportes.confirmar');
             Route::patch('/aportes/{id}/rechazar', [AporteController::class, 'rechazar'])->name('aportes.rechazar');
+
+            Route::get('/consultas', [ConsultaController::class, 'index'])->name('consultas.index');
+            Route::get('/consultas/{id}', [ConsultaController::class, 'show'])->name('consultas.show');
+            Route::post('/consultas/{id}/responder', [ConsultaController::class, 'responder'])->name('consultas.responder');
+            Route::patch('/consultas/{id}/estado', [ConsultaController::class, 'cambiarEstado'])->name('consultas.cambiarEstado');
         });
     });
 });

@@ -43,6 +43,9 @@ export default function PublicLayout({ children }) {
                         <Link href="/noticias" className={`hover:text-emerald-700 transition ${route().current('public.noticias.*') ? 'text-emerald-700 font-bold' : ''}`}>
                             Noticias y Medios
                         </Link>
+                        <Link href="/contacto" className={`hover:text-emerald-700 transition ${route().current('public.contacto.*') ? 'text-emerald-700 font-bold' : ''}`}>
+                            Contacto
+                        </Link>
                     </nav>
 
                     {/* Acciones y Acceso al Sistema */}
@@ -126,6 +129,7 @@ export default function PublicLayout({ children }) {
                             <li><Link href="/comunidades" className="hover:text-white transition">Comunidades y Programas</Link></li>
                             <li><Link href="/campanas" className="hover:text-white transition">Campañas de Crowdfunding</Link></li>
                             <li><Link href="/noticias" className="hover:text-white transition">Noticias y Publicaciones</Link></li>
+                            <li><Link href="/contacto" className="hover:text-white transition">Buzón de Consultas y Contacto</Link></li>
                             <li><Link href={route('login')} className="hover:text-emerald-400 transition">Panel de Administración</Link></li>
                         </ul>
                     </div>

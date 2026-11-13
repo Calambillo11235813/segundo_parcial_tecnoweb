@@ -110,26 +110,24 @@ export default function AdminLayout({ title, children }) {
                         </>
                     )}
 
-                    {/* Módulos para Director y Secretaria (CU-06) */}
+                    {/* Módulos para Director y Secretaria (CU-06 y CU-07) */}
                     {['director', 'secretaria'].includes(roleName.toLowerCase()) && (
-                        <Link
-                            href={route('admin.aportes.index')}
-                            className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.aportes.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                        >
-                            <span className="mr-3">💳</span> Aportes y Donaciones
-                        </Link>
+                        <>
+                            <Link href={route('admin.aportes.index')} className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.aportes.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                                <span className="mr-3">💳</span> Aportes y Donaciones
+                            </Link>
+                            <Link href={route('admin.consultas.index')} className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.consultas.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                                <span className="mr-3">📬</span> Consultas Ciudadanas
+                            </Link>
+                        </>
                     )}
 
-                    <div className="pt-4 pb-1">
-                        <p className="px-3 text-[11px] uppercase tracking-wider text-slate-400 font-bold">Módulos en Desarrollo</p>
-                    </div>
-
-                    <div className="px-3 py-2 text-xs text-slate-400 space-y-2">
-                        <div className="flex justify-between items-center opacity-60">
-                            <span>📬 Consultas Ciudadanas</span>
-                            <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">CU-07</span>
-                        </div>
-                    </div>
+                    {/* CU-08: Reportes y Estadísticas (Exclusivo Director) */}
+                    {roleName.toLowerCase() === 'director' && (
+                        <Link href={route('admin.reportes.index')} className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.reportes.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+                            <span className="mr-3">📈</span> Reportes y Estadísticas
+                        </Link>
+                    )}
                 </nav>
 
                 {/* Botón para cerrar sesión */}
