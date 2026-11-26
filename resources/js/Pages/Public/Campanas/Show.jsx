@@ -3,6 +3,8 @@ import { Head, Link } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import ProgressBar from '@/Components/ProgressBar';
 import StatusBadge from '@/Components/StatusBadge';
+import ShareButtons from '@/Components/ShareButtons';
+import { getYouTubeEmbedUrl } from '@/Pages/Admin/Campanas/SeccionVideoDestino';
 
 /**
  * Ficha de detalle de Campaña de Crowdfunding Comunitario (CU-05, RF-10).
@@ -14,6 +16,12 @@ export default function Show({ campana }) {
 
     const esActiva = campana.estado === 'Activa';
     const dias = campana.dias_restantes ?? 0;
+    const videoUrl = campana.config_pago?.video_youtube || '';
+    const videoEmbedUrl = getYouTubeEmbedUrl(videoUrl);
+    const destinoFondos = campana.config_pago?.destino_fondos || '';
+    const fechaCierreFormateada = campana.fecha_limite
+        ? new Date(campana.fecha_limite).toLocaleDateString('es-BO')
+        : 'Por definir';
 
     return (
         <PublicLayout>
@@ -47,9 +55,65 @@ export default function Show({ campana }) {
                                 {campana.titulo}
                             </h1>
 
-                            <div className="prose prose-slate max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-line">
-                                {campana.descripcion}
-                            </div>
+                            {!destinoFondos && campana.descripcion && (
+                                <div className="prose prose-slate max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-line">
+                                    {campana.descripcion}
+                                </div>
+                            )}
+
+                            {/* Video corto de la comunidad (YouTube, máx. 3 min) */}
+                            {videoUrl && (
+                                <div className="space-y-2.5 pt-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                            <span>🎥</span>
+                                            <span>Mensaje de la Comunidad</span>
+                                        </h2>
+                                        <a
+                                            href={videoUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[11px] font-semibold text-red-600 hover:underline"
+                                        >
+                                            Ver en YouTube ↗
+                                        </a>
+                                    </div>
+                                    {videoEmbedUrl ? (
+                                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video shadow-sm">
+                                            <iframe
+                                                src={videoEmbedUrl}
+                                                title={`Video comunitario - ${campana.titulo}`}
+                                                className="w-full h-full border-0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        </div>
+                                    ) : (
+                                        <a
+                                            href={videoUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-between p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition text-xs font-bold"
+                                        >
+                                            <span>▶️ Ver video explicativo de la comunidad en YouTube</span>
+                                            <span>↗</span>
+                                        </a>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Destino del dinero para incentivar la donación */}
+                            {destinoFondos && (
+                                <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                                        <span>💡</span>
+                                        <span>¿En qué se invertirá tu aporte?</span>
+                                    </p>
+                                    <p className="text-sm text-emerald-950 leading-relaxed whitespace-pre-line">
+                                        {destinoFondos}
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Tarjeta de la Comunidad Asociada */}
                             {campana.comunidad && (
@@ -85,12 +149,23 @@ export default function Show({ campana }) {
                                     {campana.aportes.map((aporte) => (
                                         <li key={aporte.id_aporte} className="py-3 flex justify-between items-center text-xs">
                                             <div className="flex items-center space-x-2">
-                                                <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-[10px]">
-                                                    {(aporte.nombre_donante || 'A')[0].toUpperCase()}
+                                                <span
+                                                    className={`w-7 h-7 rounded-full font-bold flex items-center justify-center text-[10px] ${
+                                                        aporte.es_anonimo
+                                                            ? 'bg-slate-100 text-slate-500'
+                                                            : 'bg-emerald-100 text-emerald-800'
+                                                    }`}
+                                                >
+                                                    {aporte.es_anonimo ? '🔒' : (aporte.nombre_donante || 'A')[0].toUpperCase()}
                                                 </span>
                                                 <div>
-                                                    <p className="font-semibold text-slate-800">
-                                                        {aporte.nombre_donante || 'Donante Solidario Anónimo'}
+                                                    <p className="font-semibold text-slate-800 flex items-center gap-1.5">
+                                                        <span>{aporte.es_anonimo ? 'Donante Anónimo' : (aporte.nombre_donante || 'Donante Anónimo')}</span>
+                                                        {aporte.es_anonimo && (
+                                                            <span className="text-[10px] font-medium bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
+                                                                Anónimo
+                                                            </span>
+                                                        )}
                                                     </p>
                                                     <p className="text-[10px] text-slate-400">
                                                         {aporte.fecha_registro
@@ -137,7 +212,7 @@ export default function Show({ campana }) {
                                 <div className="p-3 bg-slate-50 rounded-xl">
                                     <p className="text-[10px] uppercase font-bold text-slate-400">Fecha Cierre</p>
                                     <p className="text-xs font-bold text-slate-800 mt-1">
-                                        {campana.fecha_limite || 'Por definir'}
+                                        {fechaCierreFormateada}
                                     </p>
                                 </div>
                             </div>
@@ -178,6 +253,17 @@ export default function Show({ campana }) {
                                     </a>
                                 </div>
                             )}
+
+                            <div className="pt-4 border-t border-slate-100">
+                                <ShareButtons
+                                    url={route('public.campanas.show', campana.id_campana)}
+                                    title={campana.titulo}
+                                    description={`Apoya esta campaña comunitaria en ${campana.comunidad?.nombre || 'la Chiquitanía'} con Fundación FEDER`}
+                                    category="Campaña"
+                                    variant="inline"
+                                    heading="Compartir esta campaña"
+                                />
+                            </div>
 
                             <div className="pt-2">
                                 <Link

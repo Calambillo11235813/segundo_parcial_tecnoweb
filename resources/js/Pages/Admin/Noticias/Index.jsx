@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import ShareButtons from '@/Components/ShareButtons';
 
 /**
  * Listado Administrativo de Noticias y Comunicados (CU-03, RF-01).
@@ -42,14 +43,6 @@ export default function Index({ noticias, filtros }) {
                     <p className="text-xs text-slate-500">Publica novedades, actividades en comunidades y convocatorias oficiales.</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <Link
-                        href={route('public.noticias.index')}
-                        target="_blank"
-                        className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition"
-                    >
-                        <span>🌐</span>
-                        <span>Ver Sala Pública</span>
-                    </Link>
                     <Link
                         href={route('admin.noticias.create')}
                         className="inline-flex items-center space-x-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition"
@@ -137,7 +130,16 @@ export default function Index({ noticias, filtros }) {
                                                 {n.estado}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-right space-x-2">
+                                        <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                                            {n.estado === 'Publicado' && (
+                                                <ShareButtons
+                                                    url={route('public.noticias.show', n.id_noticia)}
+                                                    title={n.titulo}
+                                                    description="Noticia institucional de Fundación FEDER"
+                                                    category="Noticia"
+                                                    variant="button"
+                                                />
+                                            )}
                                             <Link
                                                 href={route('admin.noticias.edit', n.id_noticia)}
                                                 className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold transition"

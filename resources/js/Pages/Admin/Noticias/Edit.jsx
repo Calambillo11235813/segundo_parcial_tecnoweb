@@ -55,16 +55,6 @@ export default function Edit({ noticia }) {
                         <p className="text-xs text-slate-500">Autor: {noticia.usuario?.nombre_completo || 'Personal FEDER'}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                        {noticia.estado === 'Publicado' && (
-                            <a
-                                href={route('public.noticias.show', noticia.id_noticia)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="px-3.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
-                            >
-                                🌐 Ver en Portal Público ↗
-                            </a>
-                        )}
                         <Link
                             href={route('admin.noticias.index')}
                             className="px-3.5 py-1.5 rounded-lg bg-slate-800 text-xs font-semibold text-white hover:bg-slate-900 transition"

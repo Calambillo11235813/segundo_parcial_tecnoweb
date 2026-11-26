@@ -9,6 +9,7 @@ export default function ComunidadModal({ comunidad, isOpen, onClose }) {
         nombre: '',
         descripcion: '',
         ubicacion: '',
+        mapa_url: '',
         estado: 'Activa',
     });
 
@@ -20,6 +21,7 @@ export default function ComunidadModal({ comunidad, isOpen, onClose }) {
                 nombre: comunidad.nombre || '',
                 descripcion: comunidad.descripcion || '',
                 ubicacion: comunidad.ubicacion || '',
+                mapa_url: comunidad.mapa_url || '',
                 estado: comunidad.estado || 'Activa',
             });
         } else {
@@ -89,6 +91,39 @@ export default function ComunidadModal({ comunidad, isOpen, onClose }) {
                                 <option value="Inactiva">Inactiva</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block font-semibold text-slate-700 uppercase">
+                                🗺️ Enlace de Google Maps o Coordenadas (Opcional)
+                            </label>
+                            {data.mapa_url && (
+                                <a
+                                    href={
+                                        /^https?:\/\//i.test(data.mapa_url.trim())
+                                            ? data.mapa_url.trim()
+                                            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.mapa_url.trim())}`
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[11px] text-green-700 hover:underline font-semibold"
+                                >
+                                    Probar mapa ↗
+                                </a>
+                            )}
+                        </div>
+                        <input
+                            type="text"
+                            value={data.mapa_url}
+                            onChange={(e) => setData('mapa_url', e.target.value)}
+                            placeholder="Ej: -17.8456, -60.7421 o https://maps.app.goo.gl/..."
+                            className={`${inputClass} font-mono text-[11px]`}
+                        />
+                        <p className="text-[10px] text-slate-400 mt-1">
+                            Si lo dejas vacío, la ficha pública mostrará automáticamente el mapa según el nombre y la ubicación ingresados.
+                        </p>
+                        {errors.mapa_url && <p className="text-red-600 text-xs mt-1">{errors.mapa_url}</p>}
                     </div>
 
                     <div>

@@ -18,6 +18,8 @@ class Aporte extends Model
     public const ESTADO_CONFIRMADO = 'Confirmado';
     public const ESTADO_RECHAZADO = 'Rechazado';
 
+    public const NOMBRE_ANONIMO = 'Donante Anónimo';
+
     public const MODALIDADES = [
         'Transferencia bancaria',
         'QR',
@@ -43,7 +45,7 @@ class Aporte extends Model
         'fecha_registro' => 'datetime',
     ];
 
-    protected $appends = ['codigo_comprobante'];
+    protected $appends = ['codigo_comprobante', 'es_anonimo'];
 
     /**
      * Campaña de financiamiento a la que se destina este aporte.
@@ -59,5 +61,20 @@ class Aporte extends Model
     public function getCodigoComprobanteAttribute(): string
     {
         return 'AP-' . str_pad((string) $this->id_aporte, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Indica si el aporte fue registrado de forma anónima.
+     */
+    public function getEsAnonimoAttribute(): bool
+    {
+        $nombre = mb_strtolower(trim((string) $this->nombre_donante));
+
+        return in_array($nombre, [
+            mb_strtolower(self::NOMBRE_ANONIMO),
+            'anónimo',
+            'anonimo',
+            'donante anonimo',
+        ], true);
     }
 }

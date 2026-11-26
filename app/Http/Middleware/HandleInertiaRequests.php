@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\VisitaSitioService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,11 +38,19 @@ class HandleInertiaRequests extends Middleware
             $user->loadMissing('rol');
         }
 
+        $esRutaPublica = $request->isMethod('GET')
+            && !$request->is('admin', 'admin/*', 'login', 'logout');
+
+        $visitasSitio = ($esRutaPublica && !$request->header('X-Inertia'))
+            ? VisitaSitioService::registrarVisita()
+            : VisitaSitioService::obtenerTotal();
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
             ],
+            'visitas_sitio' => $visitasSitio,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error'   => fn () => $request->session()->get('error'),

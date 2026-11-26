@@ -4,6 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import ProgressBar from '@/Components/ProgressBar';
 import StatusBadge from '@/Components/StatusBadge';
 import ConfirmModal from '@/Components/ConfirmModal';
+import ShareButtons from '@/Components/ShareButtons';
 
 /**
  * Tablero Administrativo de Campañas de Crowdfunding (CU-05, RF-09, RF-10).
@@ -11,6 +12,7 @@ import ConfirmModal from '@/Components/ConfirmModal';
  */
 export default function Index({ campanas, filtros, metricas }) {
     const [cerrandoId, setCerrandoId] = useState(null);
+    const [eliminandoCampana, setEliminandoCampana] = useState(null);
     const [procesando, setProcesando] = useState(false);
 
     const handleFiltrar = (e) => {
@@ -33,6 +35,18 @@ export default function Index({ campanas, filtros, metricas }) {
         });
     };
 
+    const handleConfirmarEliminacion = () => {
+        if (!eliminandoCampana) return;
+        setProcesando(true);
+        router.delete(route('admin.campanas.destroy', eliminandoCampana.id_campana), {
+            preserveScroll: true,
+            onFinish: () => {
+                setProcesando(false);
+                setEliminandoCampana(null);
+            },
+        });
+    };
+
     const fmtBs = (val) => 'Bs. ' + Number(val || 0).toLocaleString('es-BO', { minimumFractionDigits: 2 });
 
     return (
@@ -46,13 +60,6 @@ export default function Index({ campanas, filtros, metricas }) {
                     <p className="text-xs text-slate-500">Supervisa las metas económicas, plazos y avance de fondos para la Chiquitanía.</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <Link
-                        href={route('public.campanas.index')}
-                        target="_blank"
-                        className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
-                    >
-                        🌐 Ver Portal Público
-                    </Link>
                     <Link
                         href={route('admin.campanas.create')}
                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition"
@@ -146,6 +153,13 @@ export default function Index({ campanas, filtros, metricas }) {
                                         <td className="px-4 py-3 text-center font-bold text-slate-700">{c.aportes_count ?? 0}</td>
                                         <td className="px-4 py-3"><StatusBadge status={c.estado} /></td>
                                         <td className="px-4 py-3 text-right space-x-1 whitespace-nowrap">
+                                            <ShareButtons
+                                                url={route('public.campanas.show', c.id_campana)}
+                                                title={c.titulo}
+                                                description={`Apoya esta campaña comunitaria en ${c.comunidad?.nombre || 'la Chiquitanía'} con Fundación FEDER`}
+                                                category="Campaña"
+                                                variant="button"
+                                            />
                                             <Link href={route('admin.campanas.edit', c.id_campana)} className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold transition">
                                                 Editar
                                             </Link>
@@ -154,6 +168,9 @@ export default function Index({ campanas, filtros, metricas }) {
                                                     Cerrar
                                                 </button>
                                             )}
+                                            <button onClick={() => setEliminandoCampana(c)} className="px-2.5 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100 font-semibold transition">
+                                                Eliminar
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -191,6 +208,24 @@ export default function Index({ campanas, filtros, metricas }) {
                 loading={procesando}
                 onConfirm={handleConfirmarCierre}
                 onClose={() => setCerrandoId(null)}
+            />
+
+            <ConfirmModal
+                isOpen={!!eliminandoCampana}
+                title="Eliminar Campaña Permanentemente"
+                message={
+                    eliminandoCampana
+                        ? `¿Está seguro de eliminar por completo la campaña "${eliminandoCampana.titulo}"?${
+                            (eliminandoCampana.aportes_count ?? 0) > 0
+                                ? ` También se eliminarán sus aportes registrados.`
+                                : ''
+                        } Esta acción no se puede deshacer.`
+                        : ''
+                }
+                confirmText="Sí, Eliminar Definitivamente"
+                loading={procesando}
+                onConfirm={handleConfirmarEliminacion}
+                onClose={() => setEliminandoCampana(null)}
             />
         </AdminLayout>
     );

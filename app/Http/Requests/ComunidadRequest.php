@@ -29,6 +29,7 @@ class ComunidadRequest extends FormRequest
             'nombre'      => ['required', 'string', 'max:100'],
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'ubicacion'   => ['required', 'string', 'max:255'],
+            'mapa_url'    => ['nullable', 'string', 'max:500'],
             'estado'      => ['required', 'in:Activa,Inactiva'],
         ];
     }

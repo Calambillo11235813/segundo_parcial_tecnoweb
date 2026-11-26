@@ -1,5 +1,6 @@
 import React from 'react';
 import StatusBadge from '@/Components/StatusBadge';
+import ShareButtons from '@/Components/ShareButtons';
 
 /**
  * Tarjeta administrativa de una comunidad con su lista de programas (CU-04).
@@ -15,7 +16,23 @@ export default function ComunidadCard({ comunidad, onEditar, onEliminar, onNuevo
                         <h3 className="font-bold text-slate-900 text-base">{comunidad.nombre}</h3>
                         <StatusBadge status={comunidad.estado} />
                     </div>
-                    <p className="text-[11px] text-green-700 font-semibold mt-0.5">📍 {comunidad.ubicacion}</p>
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                        <p className="text-[11px] text-green-700 font-semibold">📍 {comunidad.ubicacion}</p>
+                        <a
+                            href={
+                                comunidad.mapa_url && /^https?:\/\//i.test(comunidad.mapa_url.trim())
+                                    ? comunidad.mapa_url.trim()
+                                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                        comunidad.mapa_url?.trim() || `${comunidad.nombre}, ${comunidad.ubicacion}, Bolivia`
+                                    )}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] font-semibold text-emerald-700 hover:underline bg-emerald-50 px-2 py-0.5 rounded-full"
+                        >
+                            🗺️ Ver mapa ↗
+                        </a>
+                    </div>
                     {comunidad.descripcion && (
                         <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-2">{comunidad.descripcion}</p>
                     )}
@@ -54,7 +71,15 @@ export default function ComunidadCard({ comunidad, onEditar, onEliminar, onNuevo
                                     <p className="text-[10px] text-slate-400">👥 {p.poblacion_beneficiaria}</p>
                                 )}
                             </div>
-                            <div className="flex gap-2 text-[11px] flex-shrink-0">
+                            <div className="flex items-center gap-2 text-[11px] flex-shrink-0">
+                                <ShareButtons
+                                    url={`${route('public.comunidades.show', comunidad.id_comunidad)}#programa-${p.id_programa}`}
+                                    title={p.nombre}
+                                    description={`Programa productivo (${p.area_productiva}) en ${comunidad.nombre} - Fundación FEDER`}
+                                    category="Programa Productivo"
+                                    variant="button"
+                                    buttonClassName="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold transition"
+                                />
                                 <button onClick={() => onEditarPrograma(p)} className="text-blue-700 hover:underline font-semibold">Editar</button>
                                 <button onClick={() => onEliminarPrograma(p)} className="text-red-600 hover:underline font-semibold">Eliminar</button>
                             </div>

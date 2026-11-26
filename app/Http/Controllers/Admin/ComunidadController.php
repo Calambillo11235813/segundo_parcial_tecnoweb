@@ -57,10 +57,13 @@ class ComunidadController extends Controller
      */
     public function store(ComunidadRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['usuario_id'] = Auth::id();
+        $validated = $request->validated();
+        $mapaUrl = $validated['mapa_url'] ?? '';
+        unset($validated['mapa_url']);
+        $validated['usuario_id'] = Auth::id();
 
-        $comunidad = Comunidad::create($data);
+        $comunidad = Comunidad::create($validated);
+        Comunidad::guardarMapaUrl((int) $comunidad->id_comunidad, $mapaUrl);
 
         Auditoria::registrar("CREACION_COMUNIDAD [{$comunidad->nombre}]", 'COMUNIDAD');
 
@@ -74,7 +77,12 @@ class ComunidadController extends Controller
     public function update(ComunidadRequest $request, int $id): RedirectResponse
     {
         $comunidad = Comunidad::findOrFail($id);
-        $comunidad->update($request->validated());
+        $validated = $request->validated();
+        $mapaUrl = $validated['mapa_url'] ?? '';
+        unset($validated['mapa_url']);
+
+        $comunidad->update($validated);
+        Comunidad::guardarMapaUrl((int) $comunidad->id_comunidad, $mapaUrl);
 
         Auditoria::registrar("ACTUALIZACION_COMUNIDAD [ID: {$id}]", 'COMUNIDAD');
 

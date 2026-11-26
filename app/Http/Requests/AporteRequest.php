@@ -26,7 +26,13 @@ class AporteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_donante' => ['required', 'string', 'max:150'],
+            'es_anonimo'     => ['nullable', 'boolean'],
+            'nombre_donante' => [
+                Rule::requiredIf(! $this->boolean('es_anonimo')),
+                'nullable',
+                'string',
+                'max:150',
+            ],
             'correo_donante' => ['required', 'email', 'max:150'],
             'monto'          => ['required', 'numeric', 'min:1', 'max:99999999.99'],
             'modalidad'      => ['required', 'string', Rule::in(Aporte::MODALIDADES)],

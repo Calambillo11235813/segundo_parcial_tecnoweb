@@ -77,12 +77,6 @@ export default function AdminLayout({ title, children }) {
                             >
                                 <span className="mr-3">🏛️</span> Información Inst.
                             </Link>
-                            <Link
-                                href={route('admin.campanas.index')}
-                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.campanas.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                            >
-                                <span className="mr-3">🎯</span> Crowdfunding
-                            </Link>
                         </>
                     )}
 
@@ -108,6 +102,16 @@ export default function AdminLayout({ title, children }) {
                                 <span className="mr-3">🌾</span> Comunidades
                             </Link>
                         </>
+                    )}
+
+                    {/* CU-05: Crowdfunding (Exclusivo Director) */}
+                    {roleName.toLowerCase() === 'director' && (
+                        <Link
+                            href={route('admin.campanas.index')}
+                            className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${route().current('admin.campanas.*') ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <span className="mr-3">🎯</span> Crowdfunding
+                        </Link>
                     )}
 
                     {/* Módulos para Director y Secretaria (CU-06 y CU-07) */}
@@ -153,14 +157,16 @@ export default function AdminLayout({ title, children }) {
                         <h1 className="text-xl font-bold text-slate-800">{title || 'Panel de Administración'}</h1>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <Link
+                        <a
                             href={route('public.nosotros')}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
                             title="Ver portal público"
                         >
                             <span>🌐</span>
                             <span>Ver Portal Público</span>
-                        </Link>
+                        </a>
                         <div className="hidden sm:block text-right">
                             <span className="block text-sm font-semibold text-slate-700">{user?.nombre_completo}</span>
                             <span className="block text-xs text-slate-500">{user?.correo_electronico}</span>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CampanaPagoConfigService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,22 @@ class Campana extends Model
         'fecha_inicio'    => 'date',
         'fecha_limite'    => 'date',
     ];
+
+    protected $appends = ['config_pago'];
+
+    /**
+     * Configuración personalizada de medios de pago (QR y cuenta bancaria) de la campaña.
+     *
+     * @return array<string, mixed>
+     */
+    public function getConfigPagoAttribute(): array
+    {
+        if (!$this->id_campana) {
+            return CampanaPagoConfigService::DEFAULTS;
+        }
+
+        return CampanaPagoConfigService::get((int) $this->id_campana);
+    }
 
     /**
      * Comunidad beneficiaria de la campaña comunitaria.

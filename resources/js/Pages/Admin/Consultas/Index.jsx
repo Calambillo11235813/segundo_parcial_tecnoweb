@@ -32,13 +32,6 @@ export default function Index({ consultas, filtros, metricas, estados = [] }) {
                     <h2 className="text-xl font-bold text-slate-800">Bandeja de Consultas y Solicitudes</h2>
                     <p className="text-xs text-slate-500">Gestiona y responde los mensajes recibidos desde el formulario público de contacto.</p>
                 </div>
-                <Link
-                    href={route('public.contacto.index')}
-                    target="_blank"
-                    className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition self-start"
-                >
-                    🌐 Ver Formulario Público
-                </Link>
             </div>
 
             {/* Tarjetas de Métricas de Atención */}

@@ -7,7 +7,9 @@ use App\Http\Requests\AporteRequest;
 use App\Mail\AporteAgradecimientoMail;
 use App\Models\Aporte;
 use App\Models\Campana;
+use App\Services\ComprobanteAportePdfService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
@@ -54,7 +56,13 @@ class PublicAporteController extends Controller
                 ->with('error', 'La campaña no se encuentra activa para recibir aportes.');
         }
 
+        $esAnonimo = $request->boolean('es_anonimo');
         $datos = $request->validated();
+        unset($datos['es_anonimo']);
+
+        $datos['nombre_donante'] = $esAnonimo
+            ? Aporte::NOMBRE_ANONIMO
+            : trim((string) $datos['nombre_donante']);
         $datos['fecha_registro'] = now();
         $datos['estado'] = Aporte::ESTADO_PENDIENTE;
         $datos['campana_id'] = $campana->id_campana;
@@ -83,6 +91,22 @@ class PublicAporteController extends Controller
 
         return Inertia::render('Public/Campanas/Comprobante', [
             'aporte' => $aporte,
+        ]);
+    }
+
+    /**
+     * Descarga directamente el comprobante preliminar de aporte en formato PDF (1 página).
+     */
+    public function descargarComprobantePdf(int $id, ComprobanteAportePdfService $pdfService): HttpResponse
+    {
+        $aporte = Aporte::with('campana.comunidad')->findOrFail($id);
+        $pdfContent = $pdfService->generar($aporte);
+
+        $nombreArchivo = 'comprobante_' . $aporte->codigo_comprobante . '.pdf';
+
+        return response($pdfContent, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $nombreArchivo . '"',
         ]);
     }
 }

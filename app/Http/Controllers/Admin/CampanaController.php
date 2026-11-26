@@ -7,8 +7,10 @@ use App\Http\Requests\CampanaRequest;
 use App\Models\Auditoria;
 use App\Models\Campana;
 use App\Models\Comunidad;
+use App\Services\CampanaPagoConfigService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -78,10 +80,26 @@ class CampanaController extends Controller
      */
     public function store(CampanaRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['monto_recaudado'] = 0.00;
+        $validated = $request->validated();
+        $campanaData = collect($validated)->only([
+            'titulo',
+            'meta_economica',
+            'fecha_inicio',
+            'fecha_limite',
+            'estado',
+            'comunidad_id',
+        ])->toArray();
+        $campanaData['descripcion'] = trim((string) ($validated['destino_fondos'] ?? '')) ?: $validated['titulo'];
+        $campanaData['monto_recaudado'] = 0.00;
 
-        $campana = Campana::create($data);
+        $campana = Campana::create($campanaData);
+
+        CampanaPagoConfigService::save(
+            (int) $campana->id_campana,
+            $validated,
+            $request->file('qr_imagen_archivo'),
+            false
+        );
 
         Auditoria::registrar("CREACION_CAMPANA [{$campana->titulo}]", 'CAMPANA');
 
@@ -110,7 +128,26 @@ class CampanaController extends Controller
     public function update(CampanaRequest $request, int $id): RedirectResponse
     {
         $campana = Campana::findOrFail($id);
-        $campana->update($request->validated());
+        $validated = $request->validated();
+
+        $updateData = collect($validated)->only([
+            'titulo',
+            'meta_economica',
+            'fecha_inicio',
+            'fecha_limite',
+            'estado',
+            'comunidad_id',
+        ])->toArray();
+        $updateData['descripcion'] = trim((string) ($validated['destino_fondos'] ?? '')) ?: $campana->descripcion;
+
+        $campana->update($updateData);
+
+        CampanaPagoConfigService::save(
+            (int) $campana->id_campana,
+            $validated,
+            $request->file('qr_imagen_archivo'),
+            $request->boolean('eliminar_qr')
+        );
 
         Auditoria::registrar("ACTUALIZACION_CAMPANA [ID: {$id}]", 'CAMPANA');
 
@@ -130,6 +167,27 @@ class CampanaController extends Controller
 
         return redirect()->back()
             ->with('success', "La campaña \"{$campana->titulo}\" ha sido cerrada exitosamente.");
+    }
+
+    /**
+     * Elimina permanentemente una campaña de recaudación y sus recursos asociados.
+     */
+    public function destroy(int $id): RedirectResponse
+    {
+        $campana = Campana::findOrFail($id);
+        $titulo = $campana->titulo;
+
+        DB::transaction(function () use ($campana) {
+            $campana->aportes()->delete();
+            $campana->delete();
+        });
+
+        CampanaPagoConfigService::delete($id);
+
+        Auditoria::registrar("ELIMINACION_CAMPANA [{$titulo}]", 'CAMPANA');
+
+        return redirect()->route('admin.campanas.index')
+            ->with('success', "La campaña \"{$titulo}\" ha sido eliminada permanentemente.");
     }
 
     /**

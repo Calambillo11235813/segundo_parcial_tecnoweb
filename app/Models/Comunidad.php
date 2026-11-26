@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Modelo Eloquent para Comunidades Beneficiarias (CU-03 y CU-04).
@@ -26,6 +27,50 @@ class Comunidad extends Model
         'estado',
         'usuario_id',
     ];
+
+    protected $appends = ['mapa_url'];
+
+    private const MAPAS_CONFIG_PATH = 'comunidades_mapas.json';
+
+    /**
+     * Enlace de Google Maps o coordenadas geográficas configuradas para la comunidad.
+     */
+    public function getMapaUrlAttribute(): string
+    {
+        if (!$this->id_comunidad || !Storage::disk('local')->exists(self::MAPAS_CONFIG_PATH)) {
+            return '';
+        }
+
+        $decoded = json_decode(Storage::disk('local')->get(self::MAPAS_CONFIG_PATH) ?: '{}', true);
+
+        return is_array($decoded) ? (string) ($decoded[(string) $this->id_comunidad] ?? '') : '';
+    }
+
+    /**
+     * Guarda el enlace de Google Maps o coordenadas de la comunidad.
+     */
+    public static function guardarMapaUrl(int $comunidadId, ?string $mapaUrl): void
+    {
+        $all = [];
+        if (Storage::disk('local')->exists(self::MAPAS_CONFIG_PATH)) {
+            $decoded = json_decode(Storage::disk('local')->get(self::MAPAS_CONFIG_PATH) ?: '{}', true);
+            if (is_array($decoded)) {
+                $all = $decoded;
+            }
+        }
+
+        $limpio = trim((string) $mapaUrl);
+        if ($limpio === '') {
+            unset($all[(string) $comunidadId]);
+        } else {
+            $all[(string) $comunidadId] = $limpio;
+        }
+
+        Storage::disk('local')->put(
+            self::MAPAS_CONFIG_PATH,
+            json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        );
+    }
 
     /**
      * Relación con el usuario registrador.

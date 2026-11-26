@@ -6,13 +6,13 @@ import { Link, usePage } from '@inertiajs/react';
  * Cabecera institucional FEDER, navegación principal y pie de página corporativo.
  */
 export default function PublicLayout({ children }) {
-    const { auth } = usePage().props;
+    const { auth, visitas_sitio } = usePage().props;
     const user = auth?.user;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
             {/* Cabecera / Navbar Superior */}
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm print:hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                     {/* Logotipo FEDER */}
                     <Link href="/" className="flex items-center space-x-3 group">
@@ -97,7 +97,7 @@ export default function PublicLayout({ children }) {
             </main>
 
             {/* Pie de Página Institucional (Footer) */}
-            <footer className="bg-slate-900 text-slate-400 text-xs py-10 border-t border-slate-800">
+            <footer className="bg-slate-900 text-slate-400 text-xs py-10 border-t border-slate-800 print:hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
                         <div className="flex items-center space-x-2 text-white font-bold text-base mb-2">
@@ -135,8 +135,18 @@ export default function PublicLayout({ children }) {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-slate-800 text-center text-slate-500">
-                    © {new Date().getFullYear()} Fundación FEDER - Todos los derechos reservados.
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500">
+                    <span>© {new Date().getFullYear()} Fundación FEDER - Todos los derechos reservados.</span>
+                    <div
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-slate-300 text-xs"
+                        title="Total de visitas registradas al portal institucional"
+                    >
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-slate-400">👁️ Visitas al sitio:</span>
+                        <span className="font-bold text-white font-mono">
+                            {Number(visitas_sitio || 0).toLocaleString('es-BO')}
+                        </span>
+                    </div>
                 </div>
             </footer>
         </div>

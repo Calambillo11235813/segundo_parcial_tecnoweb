@@ -50,13 +50,6 @@ export default function Index({ comunidades, filtros, areasProductivas }) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link
-                        href={route('public.comunidades.index')}
-                        target="_blank"
-                        className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition"
-                    >
-                        🌐 Ver Catálogo Público
-                    </Link>
                     <button
                         onClick={() => setModalComunidad({ abierto: true, comunidad: null })}
                         className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-lg shadow transition"

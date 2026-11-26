@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+import ShareButtons from '@/Components/ShareButtons';
 
 /**
  * Función auxiliar para formatear enlaces de YouTube a formato embed.
@@ -78,6 +79,22 @@ export default function Show({ noticia, relacionadas }) {
                 {/* Contenido Completo del Artículo */}
                 <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line py-4 border-b border-slate-200">
                     {noticia.contenido}
+                </div>
+
+                {/* Barra para compartir noticia */}
+                <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <p className="text-xs font-bold text-slate-800">¿Te pareció útil esta noticia?</p>
+                        <p className="text-[11px] text-slate-500">Ayúdanos a difundir el trabajo comunitario en la Chiquitanía.</p>
+                    </div>
+                    <ShareButtons
+                        url={route('public.noticias.show', noticia.id_noticia)}
+                        title={noticia.titulo}
+                        description="Noticia institucional de Fundación FEDER"
+                        category="Noticia"
+                        variant="inline"
+                        heading=""
+                    />
                 </div>
 
                 {/* Galería Multimedia Complementaria */}

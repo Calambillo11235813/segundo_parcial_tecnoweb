@@ -41,6 +41,7 @@ Route::get('/campanas/{id}/ficha-pdf', [PublicCampanaController::class, 'descarg
 Route::get('/campanas/{id}/donar', [PublicAporteController::class, 'create'])->name('public.donaciones.create');
 Route::post('/campanas/{id}/donar', [PublicAporteController::class, 'store'])->name('public.donaciones.store');
 Route::get('/donaciones/{id}/comprobante', [PublicAporteController::class, 'comprobante'])->name('public.donaciones.comprobante');
+Route::get('/donaciones/{id}/comprobante-pdf', [PublicAporteController::class, 'descargarComprobantePdf'])->name('public.donaciones.pdf');
 Route::get('/contacto', [PublicConsultaController::class, 'create'])->name('public.contacto.index');
 Route::post('/contacto', [PublicConsultaController::class, 'store'])->name('public.contacto.store');
 
@@ -87,6 +88,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/campanas/{id}/editar', [CampanaController::class, 'edit'])->name('campanas.edit');
             Route::put('/campanas/{id}', [CampanaController::class, 'update'])->name('campanas.update');
             Route::patch('/campanas/{id}/cerrar', [CampanaController::class, 'cerrar'])->name('campanas.cerrar');
+            Route::delete('/campanas/{id}', [CampanaController::class, 'destroy'])->name('campanas.destroy');
 
             // CU-08: Reportes Estadísticos y Exportación PDF (Exclusivo Director)
             Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');

@@ -112,7 +112,14 @@ export default function Index({ aportes, filtros, metricas, modalidades, campana
                                     <tr key={a.id_aporte} className="hover:bg-slate-50/70 transition">
                                         <td className="px-4 py-3 font-mono font-bold text-slate-800">#{a.codigo_comprobante}</td>
                                         <td className="px-4 py-3">
-                                            <p className="font-bold text-slate-800">{a.nombre_donante}</p>
+                                            <div className="flex items-center gap-1.5">
+                                                <p className="font-bold text-slate-800">{a.nombre_donante}</p>
+                                                {a.es_anonimo && (
+                                                    <span className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">
+                                                        🔒 Anónimo
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span className="text-[11px] text-slate-400">{a.correo_donante}</span>
                                         </td>
                                         <td className="px-4 py-3 max-w-xs">

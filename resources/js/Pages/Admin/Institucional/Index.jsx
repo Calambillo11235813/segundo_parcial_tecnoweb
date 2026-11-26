@@ -41,21 +41,12 @@ export default function Index({ paginas, redes }) {
         <AdminLayout title="Contenidos Institucionales y Redes">
             <Head title="Contenidos Institucionales - Portal FEDER" />
 
-            {/* Cabecera del Módulo con botón de vista previa */}
+            {/* Cabecera del Módulo */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 className="text-xl font-bold text-slate-800">Información Corporativa</h2>
                     <p className="text-xs text-slate-500">Actualiza los apartados de identidad, ubicación y redes oficiales.</p>
                 </div>
-                <a
-                    href="/nosotros"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow transition"
-                >
-                    <span>🌐</span>
-                    <span>Ver en Portal Público</span>
-                </a>
             </div>
 
             {/* Apartados Institucionales */}

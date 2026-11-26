@@ -26,8 +26,8 @@
 
         <div class="content">
             <h2 style="font-size: 18px; margin-top: 0; color: #065f46;">¡Muchas gracias por tu compromiso solidario!</h2>
-            <p>Estimado(a) <strong>{{ $aporte->nombre_donante }}</strong>,</p>
-            <p>Hemos registrado exitosamente tu intención de aporte económico para fortalecer el plan comunitario en la Chiquitanía. Tu apoyo impulsa directamente a los productores y artesanos locales.</p>
+            <p>Estimado(a) <strong>{{ $aporte->es_anonimo ? 'Donante Solidario' : $aporte->nombre_donante }}</strong>,</p>
+            <p>Hemos registrado exitosamente tu intención de aporte económico{{ $aporte->es_anonimo ? ' de forma anónima' : '' }} para fortalecer el plan comunitario en la Chiquitanía. Tu apoyo impulsa directamente a los productores y artesanos locales.</p>
 
             <div class="metric-box">
                 <span class="badge">{{ $aporte->estado }}</span>
@@ -58,15 +58,23 @@
                 </tr>
             </table>
 
+            @php
+                $pago = $aporte->campana->config_pago ?? [];
+                $banco = !empty($pago['banco']) ? $pago['banco'] : 'Entidad Bancaria asignada por FEDER';
+                $cuenta = !empty($pago['numero_cuenta']) ? $pago['numero_cuenta'] : 'Consultar con tesorería';
+                $titular = !empty($pago['titular']) ? $pago['titular'] : 'Fundación FEDER';
+                $nitCi = $pago['nit_ci'] ?? '';
+                $direccionEfectivo = !empty($pago['direccion_efectivo']) ? $pago['direccion_efectivo'] : 'San Joaquín 2052, Santa Cruz de la Sierra (08:30 a 16:30)';
+            @endphp
             <div style="margin-top: 24px; padding: 14px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #065f46;">
                 <p style="margin: 0; font-size: 12px; color: #334155;">
                     <strong>Instrucciones para completar tu aporte:</strong><br>
                     @if($aporte->modalidad === 'Transferencia bancaria')
-                        Realiza tu transferencia a: <strong>Banco Unión S.A.</strong> - Cta Cte: <strong>1-12345678</strong> (NIT: 1028374029, Titular: Fundación FEDER). Envía tu comprobante a tesoreria@feder.org.bo citando el código <strong>{{ $aporte->codigo_comprobante }}</strong>.
+                        Realiza tu transferencia a: <strong>{{ $banco }}</strong> - Nro. Cuenta / Tarjeta: <strong>{{ $cuenta }}</strong> ({{ $nitCi ? "NIT/CI: {$nitCi}, " : '' }}Titular: {{ $titular }}). Envía tu comprobante a tesoreria@feder.org.bo citando el código <strong>{{ $aporte->codigo_comprobante }}</strong>.
                     @elseif($aporte->modalidad === 'QR')
-                        Escanea el código QR institucional emitido en pantalla desde tu aplicación bancaria móvil. Tu donación será validada en las próximas 24 horas.
+                        Escanea el código QR de la campaña emitido en tu comprobante desde tu aplicación bancaria móvil. Tu donación será validada en las próximas 24 horas.
                     @else
-                        Puedes apersonarte a nuestra oficina central: <strong>San Joaquín 2052, Santa Cruz de la Sierra</strong>, en horario de 08:30 a 16:30.
+                        Puedes apersonarte a nuestra oficina: <strong>{{ $direccionEfectivo }}</strong>.
                     @endif
                 </p>
             </div>
