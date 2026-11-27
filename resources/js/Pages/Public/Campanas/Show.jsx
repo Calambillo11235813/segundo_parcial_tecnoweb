@@ -259,6 +259,7 @@ export default function Show({ campana }) {
                                     url={route('public.campanas.show', campana.id_campana)}
                                     title={campana.titulo}
                                     description={`Apoya esta campaña comunitaria en ${campana.comunidad?.nombre || 'la Chiquitanía'} con Fundación FEDER`}
+                                    resumen={campana.descripcion}
                                     category="Campaña"
                                     variant="inline"
                                     heading="Compartir esta campaña"

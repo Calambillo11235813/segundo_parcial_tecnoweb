@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Comunidad;
 use App\Models\Noticia;
 use App\Models\ProgramaProductivo;
+use App\Services\OpenGraphService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -76,7 +77,7 @@ class PublicComunidadController extends Controller
     /**
      * Ficha pública de una comunidad: programas, testimonios y noticias relacionadas.
      */
-    public function show(int $id): Response
+    public function show(Request $request, int $id): Response
     {
         $comunidad = Comunidad::where('estado', 'Activa')
             ->with([
@@ -94,9 +95,26 @@ class PublicComunidadController extends Controller
             ->take(3)
             ->get(['id_noticia', 'titulo', 'fecha_publicacion', 'imagen_principal']);
 
+        // Enlace compartido de un programa (?programa=ID): solo si pertenece a esta comunidad
+        $programaId = filter_var($request->query('programa'), FILTER_VALIDATE_INT);
+        $programa = $comunidad->programas->firstWhere('id_programa', $programaId);
+
+        $parametros = ['id' => $comunidad->id_comunidad];
+        if ($programa) {
+            $parametros['programa'] = $programa->id_programa;
+        }
+
         return Inertia::render('Public/Comunidades/Show', [
             'comunidad' => $comunidad,
             'noticias'  => $noticias,
+        ])->withViewData([
+            'og' => OpenGraphService::construir(
+                titulo: $programa ? $programa->nombre : $comunidad->nombre,
+                texto: $programa
+                    ? $programa->descripcion
+                    : ($comunidad->descripcion ?: "Comunidad {$comunidad->nombre} ({$comunidad->ubicacion}) acompañada por Fundación FEDER"),
+                ruta: route('public.comunidades.show', $parametros, false),
+            ),
         ]);
     }
 }

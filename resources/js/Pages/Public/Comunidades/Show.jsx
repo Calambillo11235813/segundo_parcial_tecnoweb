@@ -131,9 +131,10 @@ export default function Show({ comunidad, noticias }) {
                                             <span />
                                         )}
                                         <ShareButtons
-                                            url={`${route('public.comunidades.show', comunidad.id_comunidad)}#programa-${p.id_programa}`}
+                                            url={`${route('public.comunidades.show', { id: comunidad.id_comunidad, programa: p.id_programa })}#programa-${p.id_programa}`}
                                             title={p.nombre}
                                             description={`Programa productivo (${p.area_productiva}) en ${comunidad.nombre} - Fundación FEDER`}
+                                            resumen={p.descripcion}
                                             category="Programa Productivo"
                                             variant="button"
                                             buttonClassName="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-600 text-slate-700 hover:text-white text-[11px] font-bold transition"

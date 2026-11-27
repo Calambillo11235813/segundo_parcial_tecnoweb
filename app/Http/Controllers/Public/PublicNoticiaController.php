@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Noticia;
 use App\Models\Testimonio;
+use App\Services\OpenGraphService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -71,6 +72,14 @@ class PublicNoticiaController extends Controller
         return Inertia::render('Public/Noticias/Show', [
             'noticia' => $noticia,
             'relacionadas' => $relacionadas,
+        ])->withViewData([
+            'og' => OpenGraphService::construir(
+                titulo: $noticia->titulo,
+                texto: $noticia->contenido,
+                ruta: route('public.noticias.show', $noticia->id_noticia, false),
+                imagen: $noticia->imagen_principal,
+                tipo: 'article',
+            ),
         ]);
     }
 }

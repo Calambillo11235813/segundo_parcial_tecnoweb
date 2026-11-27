@@ -72,14 +72,17 @@ export default function ComunidadCard({ comunidad, onEditar, onEliminar, onNuevo
                                 )}
                             </div>
                             <div className="flex items-center gap-2 text-[11px] flex-shrink-0">
-                                <ShareButtons
-                                    url={`${route('public.comunidades.show', comunidad.id_comunidad)}#programa-${p.id_programa}`}
-                                    title={p.nombre}
-                                    description={`Programa productivo (${p.area_productiva}) en ${comunidad.nombre} - Fundación FEDER`}
-                                    category="Programa Productivo"
-                                    variant="button"
-                                    buttonClassName="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold transition"
-                                />
+                                {comunidad.estado === 'Activa' && (
+                                    <ShareButtons
+                                        url={`${route('public.comunidades.show', { id: comunidad.id_comunidad, programa: p.id_programa })}#programa-${p.id_programa}`}
+                                        title={p.nombre}
+                                        description={`Programa productivo (${p.area_productiva}) en ${comunidad.nombre} - Fundación FEDER`}
+                                        resumen={p.descripcion}
+                                        category="Programa Productivo"
+                                        variant="button"
+                                        buttonClassName="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold transition"
+                                    />
+                                )}
                                 <button onClick={() => onEditarPrograma(p)} className="text-blue-700 hover:underline font-semibold">Editar</button>
                                 <button onClick={() => onEliminarPrograma(p)} className="text-red-600 hover:underline font-semibold">Eliminar</button>
                             </div>

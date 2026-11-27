@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Campana;
 use App\Services\FichaTecnicaPdfService;
+use App\Services\OpenGraphService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
@@ -72,6 +73,12 @@ class PublicCampanaController extends Controller
 
         return Inertia::render('Public/Campanas/Show', [
             'campana' => $campana,
+        ])->withViewData([
+            'og' => OpenGraphService::construir(
+                titulo: $campana->titulo,
+                texto: $campana->descripcion,
+                ruta: route('public.campanas.show', $campana->id_campana, false),
+            ),
         ]);
     }
 
