@@ -38,6 +38,14 @@ export default function SocialIcon({ platform = '', className = 'w-5 h-5' }) {
         );
     }
 
+    if (p.includes('telegram')) {
+        return (
+            <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23 3 1 11.5l6 2.2L18.5 6.5 9.5 15v6l3.5-4 5.5 4z" />
+            </svg>
+        );
+    }
+
     if (p.includes('tiktok')) {
         return (
             <svg className={className} viewBox="0 0 24 24" fill="currentColor">

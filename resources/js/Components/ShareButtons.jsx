@@ -32,9 +32,82 @@ function esCelular() {
         || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
+// X admite 280 caracteres: el enlace cuenta como 23, más el espacio que lo separa del texto
+const MAXIMO_TEXTO_X = 280 - 23 - 1;
+const FRASE_X = ' Para más información ingresar a';
+
+/**
+ * Longitud según X: las letras latinas (con tildes) cuentan 1; emojis y otros símbolos, 2.
+ */
+function pesoEnX(texto) {
+    return Array.from(texto.normalize('NFC')).reduce((total, letra) => {
+        const codigo = letra.codePointAt(0);
+        const simple = codigo <= 4351
+            || (codigo >= 8192 && codigo <= 8205)
+            || (codigo >= 8208 && codigo <= 8223)
+            || (codigo >= 8242 && codigo <= 8247);
+
+        return total + (simple ? 1 : 2);
+    }, 0);
+}
+
+/**
+ * Recorta un texto a un peso máximo (incluidos los "..."), sin partir palabras.
+ */
+function recortarParaX(texto, maximo) {
+    let corte = '';
+    for (const letra of texto.normalize('NFC')) {
+        if (pesoEnX(`${corte}${letra}...`) > maximo) {
+            break;
+        }
+        corte += letra;
+    }
+
+    const ultimoEspacio = corte.lastIndexOf(' ');
+    if (ultimoEspacio !== -1) {
+        corte = corte.slice(0, ultimoEspacio);
+    }
+
+    corte = corte.replace(/[\s.,;:—]+$/, '');
+
+    return corte ? `${corte}...` : '';
+}
+
+/**
+ * Agrega un punto final si el texto no termina en signo de puntuación.
+ */
+function cerrarOracion(texto) {
+    return /[.!?…]$/.test(texto) ? texto : `${texto}.`;
+}
+
+/**
+ * Texto para X: se recorta primero el resumen y, solo si no alcanza, el título.
+ */
+function textoParaX(titulo, breve) {
+    const disponible = MAXIMO_TEXTO_X - pesoEnX(FRASE_X);
+    const completo = cerrarOracion(breve ? `${titulo} — ${breve}` : titulo);
+
+    if (pesoEnX(completo) <= disponible) {
+        return `${completo}${FRASE_X}`;
+    }
+
+    const base = `${titulo} — `;
+    const resumenCorto = breve ? recortarParaX(breve, disponible - pesoEnX(base)) : '';
+
+    if (resumenCorto) {
+        return `${base}${resumenCorto}${FRASE_X}`;
+    }
+
+    const soloTitulo = cerrarOracion(titulo);
+
+    return pesoEnX(soloTitulo) <= disponible
+        ? `${soloTitulo}${FRASE_X}`
+        : `${recortarParaX(titulo, disponible)}${FRASE_X}`;
+}
+
 /**
  * Componente reutilizable para compartir campañas, noticias y programas productivos
- * en WhatsApp, Facebook, Instagram y mediante enlace copiado.
+ * en WhatsApp, Facebook, Instagram, Telegram, X y mediante enlace copiado.
  *
  * Variantes:
  * - "inline": barra directa de botones (ideal para vistas públicas de detalle)
@@ -69,24 +142,27 @@ export default function ShareButtons({
     };
 
     const fullUrl = resolveFullUrl();
-    const textoCompartir = description
-        ? `${title} — ${description}`
-        : `${title} | Fundación FEDER`;
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${textoCompartir}\n${fullUrl}`)}`;
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
 
-    // Texto propio de Facebook y "Más opciones", con un resumen del contenido real
+    // Textos para compartir, con un resumen del contenido real
     const prepararTextos = () => {
         const breve = resumir(resumen || description);
         const titular = breve ? `${title} — ${breve}` : title;
-        const cierre = /[.!?…]$/.test(titular) ? '' : '.';
+        const oracion = cerrarOracion(titular);
 
         return {
+            breve,
             titular,
-            publicacion: `${titular}${cierre} Para más información ingresar a ${fullUrl}`,
+            oracion,
+            publicacion: `${oracion} Para más información ingresar a ${fullUrl}`,
         };
     };
+
+    const { breve, oracion, publicacion } = prepararTextos();
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(publicacion)}`;
+    // En Telegram y X el enlace va solo en "url", para que no salga repetido
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(`${oracion} Para más información ingresar al enlace.`)}`;
+    const xUrl = `https://x.com/intent/post?text=${encodeURIComponent(textoParaX(title, breve))}&url=${encodeURIComponent(fullUrl)}`;
 
     const mostrarAviso = (mensaje, duracion = 3500) => {
         clearTimeout(temporizadorAviso.current);
@@ -115,9 +191,9 @@ export default function ShareButtons({
         }
     };
 
-    const copiarTexto = async (texto, mensajeOk) => {
+    const copiarTexto = async (texto, mensajeOk, duracion) => {
         const copiado = await escribirEnPortapapeles(texto);
-        mostrarAviso(copiado ? mensajeOk : 'No se pudo copiar automáticamente. Copia el enlace manualmente.');
+        mostrarAviso(copiado ? mensajeOk : 'No se pudo copiar automáticamente. Copia el enlace manualmente.', duracion);
     };
 
     const handleFacebook = (event) => {
@@ -146,7 +222,7 @@ export default function ShareButtons({
 
         copia.then((copiado) => {
             if (copiado) {
-                mostrarAviso('Texto copiado: pégalo en tu publicación de Facebook', 8000);
+                mostrarAviso('✓ Texto copiado', 3000);
             }
         });
     };
@@ -164,12 +240,20 @@ export default function ShareButtons({
         }
     };
 
-    const handleInstagram = async () => {
-        await copiarTexto(
-            `${textoCompartir}\n${fullUrl}`,
-            '¡Texto y enlace copiados! Pégalos en tu historia o publicación de Instagram.'
+    const handleInstagram = () => {
+        // En celular, el menú del teléfono permite elegir la app de Instagram
+        if (esCelular() && puedeCompartirNativo) {
+            handleMasOpciones();
+            return;
+        }
+
+        // El copiado se inicia sin esperar, para que el navegador no bloquee la pestaña
+        copiarTexto(
+            publicacion,
+            '✓ Texto copiado',
+            3000
         );
-        window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+        window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener,noreferrer');
     };
 
     const handleCopiarEnlace = () => {
@@ -225,11 +309,33 @@ export default function ShareButtons({
                         type="button"
                         onClick={handleInstagram}
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-pink-50 text-pink-700 hover:bg-gradient-to-r hover:from-pink-600 hover:to-purple-600 hover:text-white border border-pink-200 text-xs font-bold transition"
-                        title="Copiar enlace y abrir Instagram"
+                        title="Compartir por Instagram"
                     >
                         <SocialIcon platform="instagram" className="w-4 h-4" />
                         <span>Instagram</span>
                     </button>
+
+                    <a
+                        href={telegramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border border-sky-200 text-xs font-bold transition"
+                        title="Compartir por Telegram"
+                    >
+                        <SocialIcon platform="telegram" className="w-4 h-4" />
+                        <span>Telegram</span>
+                    </a>
+
+                    <a
+                        href={xUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-100 text-neutral-900 hover:bg-black hover:text-white border border-neutral-300 text-xs font-bold transition"
+                        title="Compartir en X (Twitter)"
+                    >
+                        <SocialIcon platform="x" className="w-4 h-4" />
+                        <span>X</span>
+                    </a>
 
                     <button
                         type="button"
@@ -258,7 +364,7 @@ export default function ShareButtons({
 
                 {feedback && (
                     <div className="px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium">
-                        ✅ {feedback}
+                        {feedback.startsWith('✓') ? feedback : `✅ ${feedback}`}
                     </div>
                 )}
             </div>
@@ -323,6 +429,26 @@ export default function ShareButtons({
                                 <SocialIcon platform="instagram" className="w-6 h-6" />
                                 <span className="text-xs font-bold">Instagram</span>
                             </button>
+
+                            <a
+                                href={telegramUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex flex-col items-center justify-center gap-1.5 p-3.5 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border border-sky-200 transition"
+                            >
+                                <SocialIcon platform="telegram" className="w-6 h-6" />
+                                <span className="text-xs font-bold">Telegram</span>
+                            </a>
+
+                            <a
+                                href={xUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex flex-col items-center justify-center gap-1.5 p-3.5 rounded-xl bg-neutral-100 text-neutral-900 hover:bg-black hover:text-white border border-neutral-300 transition"
+                            >
+                                <SocialIcon platform="x" className="w-6 h-6" />
+                                <span className="text-xs font-bold">X</span>
+                            </a>
                         </div>
 
                         {puedeCompartirNativo && (
@@ -358,7 +484,7 @@ export default function ShareButtons({
 
                         {feedback && (
                             <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
-                                ✅ {feedback}
+                                {feedback.startsWith('✓') ? feedback : `✅ ${feedback}`}
                             </div>
                         )}
                     </div>
