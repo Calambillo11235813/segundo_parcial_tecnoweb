@@ -57,7 +57,7 @@ export default function SeccionVideoDestino({ data, setData, errors }) {
 
             <div>
                 <label className="block font-semibold text-slate-700 uppercase mb-1">
-                    ¿En qué se invertirá el dinero? * (Breve descripción para motivar al donante)
+                    ¿En qué se invertirá el dinero? (Opcional - Breve descripción para motivar al donante)
                 </label>
                 <textarea
                     rows={4}

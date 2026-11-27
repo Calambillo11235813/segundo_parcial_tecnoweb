@@ -1,7 +1,8 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import SocialIcon from '@/Components/SocialIcon';
+import logoFeder from '../../../images/LOGO FEDER.png';
 
 /**
  * Estilos y colores oficiales según la red social.
@@ -20,6 +21,7 @@ function getBrandStyle(plataforma = '') {
  * Vista Pública de Contenidos Institucionales (Quiénes Somos - CU-02).
  */
 export default function Nosotros({ paginas, redes }) {
+    const { visitas_sitio } = usePage().props;
     const mision = paginas?.['Mision']?.contenido || 'Comprometidos con el desarrollo rural integral.';
     const vision = paginas?.['Vision']?.contenido || 'Liderar el crecimiento productivo de las comunidades.';
     const objetivos = paginas?.['Objetivos']?.contenido || 'Fortalecer la capacidad técnica y artesanal de la Chiquitanía.';
@@ -50,10 +52,34 @@ export default function Nosotros({ paginas, redes }) {
                     <span className="text-xs uppercase tracking-widest bg-emerald-700/80 px-3 py-1 rounded-full font-bold">
                         Identidad Institucional
                     </span>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold mt-3 tracking-tight">Fundación FEDER</h1>
-                    <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl mx-auto leading-relaxed">
+
+                    {/* Logotipo oficial FEDER como protagonista */}
+                    <div className="mt-5 flex justify-center">
+                        <h1 className="sr-only">Fundación FEDER</h1>
+                        <img
+                            src={logoFeder}
+                            alt="Fundación FEDER"
+                            className="h-20 sm:h-24 w-auto object-contain select-none"
+                        />
+                    </div>
+
+                    <p className="text-sm sm:text-base text-slate-300 mt-4 max-w-2xl mx-auto leading-relaxed">
                         Fundación Empresarial para el Desarrollo Rural de la Pequeña Industria y Artesanía en la Chiquitanía boliviana.
                     </p>
+
+                    {/* Contador de visitas visible al ingresar al sitio */}
+                    <div className="mt-5 flex justify-center">
+                        <div
+                            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 text-white text-xs shadow-sm"
+                            title="Total de visitas registradas al portal institucional"
+                        >
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-emerald-100 font-medium">👁️ Visitas al sitio:</span>
+                            <span className="font-extrabold font-mono text-sm text-white">
+                                {Number(visitas_sitio || 0).toLocaleString('es-BO')}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </section>
 

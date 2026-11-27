@@ -55,7 +55,7 @@ export default function Edit({ campana, comunidades = [] }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route('admin.campanas.update', campana.id_campana), {
-            forceFormData: true,
+            forceFormData: Boolean(data.qr_imagen_archivo),
             onError: (errs) => {
                 if (errs.titulo || errs.comunidad_id || errs.meta_economica || errs.fecha_inicio || errs.fecha_limite || errs.estado) {
                     setTabActiva('general');

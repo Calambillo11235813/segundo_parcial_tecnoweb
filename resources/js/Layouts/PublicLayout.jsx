@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import logoFeder from '../../images/LOGO FEDER.png';
 
 /**
  * Plantilla Pública de Navegación (PublicLayout).
@@ -100,9 +101,12 @@ export default function PublicLayout({ children }) {
             <footer className="bg-slate-900 text-slate-400 text-xs py-10 border-t border-slate-800 print:hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <div className="flex items-center space-x-2 text-white font-bold text-base mb-2">
-                            <span className="w-6 h-6 rounded bg-emerald-600 flex items-center justify-center text-xs">F</span>
-                            <span>Fundación FEDER</span>
+                        <div className="mb-3">
+                            <img
+                                src={logoFeder}
+                                alt="Fundación FEDER"
+                                className="h-9 w-auto object-contain select-none"
+                            />
                         </div>
                         <p className="text-slate-400 text-xs leading-relaxed">
                             Impulsando la producción artesanal, microempresarial y el desarrollo socioeconómico sostenible de las comunidades rurales de la Chiquitanía.

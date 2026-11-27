@@ -42,7 +42,7 @@ class CampanaRequest extends FormRequest
             'qr_imagen_archivo'       => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'eliminar_qr'             => ['nullable', 'boolean'],
             'video_youtube'           => ['nullable', 'url', 'max:300'],
-            'destino_fondos'          => ['required', 'string', 'max:1000'],
+            'destino_fondos'          => ['nullable', 'string', 'max:1000'],
         ];
     }
 
