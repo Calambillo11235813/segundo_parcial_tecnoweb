@@ -91,6 +91,7 @@ export default function Show({ noticia, relacionadas }) {
                         url={route('public.noticias.show', noticia.id_noticia)}
                         title={noticia.titulo}
                         description="Noticia institucional de Fundación FEDER"
+                        resumen={noticia.contenido}
                         category="Noticia"
                         variant="inline"
                         heading=""

@@ -136,6 +136,7 @@ export default function Index({ noticias, filtros }) {
                                                     url={route('public.noticias.show', n.id_noticia)}
                                                     title={n.titulo}
                                                     description="Noticia institucional de Fundación FEDER"
+                                                    resumen={n.contenido}
                                                     category="Noticia"
                                                     variant="button"
                                                 />

@@ -1,6 +1,36 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import SocialIcon from '@/Components/SocialIcon';
+
+/**
+ * Quita el HTML y los saltos de línea, y recorta sin partir palabras.
+ */
+function resumir(texto, maximo = 150) {
+    const sinEtiquetas = String(texto || '').replace(/<\/?[a-z!][^>]*>/gi, ' ');
+    const decodificado = new DOMParser().parseFromString(sinEtiquetas, 'text/html').documentElement.textContent;
+    const limpio = decodificado.replace(/\s+/g, ' ').trim();
+    const letras = Array.from(limpio);
+
+    if (letras.length <= maximo) {
+        return limpio;
+    }
+
+    let corte = letras.slice(0, maximo - 3).join('');
+    const ultimoEspacio = corte.lastIndexOf(' ');
+    if (ultimoEspacio !== -1) {
+        corte = corte.slice(0, ultimoEspacio);
+    }
+
+    return `${corte.replace(/[\s.,;:]+$/, '')}...`;
+}
+
+/**
+ * Detecta teléfonos y tabletas (incluye iPad, que se identifica como Mac).
+ */
+function esCelular() {
+    return /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
 
 /**
  * Componente reutilizable para compartir campañas, noticias y programas productivos
@@ -14,6 +44,7 @@ export default function ShareButtons({
     url,
     title,
     description = '',
+    resumen = '',
     category = 'Contenido',
     variant = 'inline',
     buttonClassName = '',
@@ -22,6 +53,7 @@ export default function ShareButtons({
 }) {
     const [modalAbierto, setModalAbierto] = useState(false);
     const [feedback, setFeedback] = useState(null);
+    const temporizadorAviso = useRef(null);
 
     const resolveFullUrl = () => {
         if (!url) {
@@ -42,27 +74,93 @@ export default function ShareButtons({
         : `${title} | Fundación FEDER`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${textoCompartir}\n${fullUrl}`)}`;
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}&quote=${encodeURIComponent(textoCompartir)}`;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
 
-    const copiarTexto = async (texto, mensajeOk) => {
+    // Texto propio de Facebook y "Más opciones", con un resumen del contenido real
+    const prepararTextos = () => {
+        const breve = resumir(resumen || description);
+        const titular = breve ? `${title} — ${breve}` : title;
+        const cierre = /[.!?…]$/.test(titular) ? '' : '.';
+
+        return {
+            titular,
+            publicacion: `${titular}${cierre} Para más información ingresar a ${fullUrl}`,
+        };
+    };
+
+    const mostrarAviso = (mensaje, duracion = 3500) => {
+        clearTimeout(temporizadorAviso.current);
+        setFeedback(mensaje);
+        temporizadorAviso.current = setTimeout(() => setFeedback(null), duracion);
+    };
+
+    // Devuelve true solo si el texto quedó realmente en el portapapeles
+    const escribirEnPortapapeles = async (texto) => {
         try {
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(texto);
-            } else {
-                const area = document.createElement('textarea');
-                area.value = texto;
-                area.style.position = 'fixed';
-                area.style.opacity = '0';
-                document.body.appendChild(area);
-                area.select();
-                document.execCommand('copy');
-                document.body.removeChild(area);
+                return true;
             }
-            setFeedback(mensajeOk);
-            setTimeout(() => setFeedback(null), 3500);
+            const area = document.createElement('textarea');
+            area.value = texto;
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+            const copiado = document.execCommand('copy');
+            document.body.removeChild(area);
+            return copiado;
         } catch {
-            setFeedback('No se pudo copiar automáticamente. Copia el enlace manualmente.');
-            setTimeout(() => setFeedback(null), 3500);
+            return false;
+        }
+    };
+
+    const copiarTexto = async (texto, mensajeOk) => {
+        const copiado = await escribirEnPortapapeles(texto);
+        mostrarAviso(copiado ? mensajeOk : 'No se pudo copiar automáticamente. Copia el enlace manualmente.');
+    };
+
+    const handleFacebook = (event) => {
+        // El copiado se inicia antes de abrir Facebook, sin esperar,
+        // para que el navegador no bloquee la ventana
+        const copia = escribirEnPortapapeles(prepararTextos().publicacion);
+
+        if (!esCelular()) {
+            const ancho = 600;
+            const alto = 640;
+            const izquierda = Math.round(window.screenX + (window.outerWidth - ancho) / 2);
+            const arriba = Math.round(window.screenY + (window.outerHeight - alto) / 2);
+            const ventana = window.open(
+                '',
+                '_blank',
+                `popup=yes,width=${ancho},height=${alto},left=${izquierda},top=${arriba}`
+            );
+
+            // Si se bloquea la ventana, el enlace sigue su curso y abre una pestaña nueva
+            if (ventana) {
+                event.preventDefault();
+                ventana.opener = null;
+                ventana.location.href = facebookUrl;
+            }
+        }
+
+        copia.then((copiado) => {
+            if (copiado) {
+                mostrarAviso('Texto copiado: pégalo en tu publicación de Facebook', 8000);
+            }
+        });
+    };
+
+    const puedeCompartirNativo = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+
+    const handleMasOpciones = async () => {
+        try {
+            await navigator.share({ title, text: prepararTextos().titular, url: fullUrl });
+        } catch (error) {
+            // AbortError: la persona cerró el menú sin compartir
+            if (error.name !== 'AbortError') {
+                mostrarAviso('No se pudo abrir el menú para compartir.');
+            }
         }
     };
 
@@ -113,6 +211,7 @@ export default function ShareButtons({
 
                     <a
                         href={facebookUrl}
+                        onClick={handleFacebook}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200 text-xs font-bold transition"
@@ -143,6 +242,18 @@ export default function ShareButtons({
                         </svg>
                         <span>Copiar</span>
                     </button>
+
+                    {puedeCompartirNativo && (
+                        <button
+                            type="button"
+                            onClick={handleMasOpciones}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white border border-slate-200 text-xs font-bold transition"
+                            title="Ver más opciones para compartir"
+                        >
+                            {iconoCompartir}
+                            <span>Más opciones</span>
+                        </button>
+                    )}
                 </div>
 
                 {feedback && (
@@ -195,6 +306,7 @@ export default function ShareButtons({
 
                             <a
                                 href={facebookUrl}
+                                onClick={handleFacebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex flex-col items-center justify-center gap-1.5 p-3.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200 transition"
@@ -212,6 +324,17 @@ export default function ShareButtons({
                                 <span className="text-xs font-bold">Instagram</span>
                             </button>
                         </div>
+
+                        {puedeCompartirNativo && (
+                            <button
+                                type="button"
+                                onClick={handleMasOpciones}
+                                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white border border-slate-200 text-xs font-bold transition"
+                            >
+                                {iconoCompartir}
+                                <span>Más opciones</span>
+                            </button>
+                        )}
 
                         <div className="space-y-1.5">
                             <label className="block text-[11px] font-semibold text-slate-500">Enlace directo</label>

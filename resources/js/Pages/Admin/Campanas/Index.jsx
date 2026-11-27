@@ -157,6 +157,7 @@ export default function Index({ campanas, filtros, metricas }) {
                                                 url={route('public.campanas.show', c.id_campana)}
                                                 title={c.titulo}
                                                 description={`Apoya esta campaña comunitaria en ${c.comunidad?.nombre || 'la Chiquitanía'} con Fundación FEDER`}
+                                                resumen={c.descripcion}
                                                 category="Campaña"
                                                 variant="button"
                                             />
