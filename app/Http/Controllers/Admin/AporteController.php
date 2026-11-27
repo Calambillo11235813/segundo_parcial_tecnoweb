@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AporteAgradecimientoMail;
 use App\Models\Aporte;
 use App\Models\Auditoria;
 use App\Models\Campana;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -73,7 +76,7 @@ class AporteController extends Controller
      */
     public function confirmar(int $id): RedirectResponse
     {
-        $aporte = Aporte::with('campana')->findOrFail($id);
+        $aporte = Aporte::with('campana.comunidad')->findOrFail($id);
 
         $aporte->estado = Aporte::ESTADO_CONFIRMADO;
         $aporte->save();
@@ -88,7 +91,20 @@ class AporteController extends Controller
             'aporte'
         );
 
-        return redirect()->back()->with('success', "Aporte #{$aporte->codigo_comprobante} confirmado con éxito. Se sumó a la campaña.");
+        // Despacha el comprobante oficial confirmado + PDF al correo del donante
+        $correoEnviado = true;
+        try {
+            Mail::to($aporte->correo_donante)->send(new AporteAgradecimientoMail($aporte));
+        } catch (\Throwable $e) {
+            $correoEnviado = false;
+            Log::warning("No se pudo enviar el correo de confirmación del aporte #{$aporte->id_aporte} ({$aporte->correo_donante}): " . $e->getMessage());
+        }
+
+        $mensaje = $correoEnviado
+            ? "Aporte #{$aporte->codigo_comprobante} confirmado con éxito. Se sumó a la campaña y se envió el comprobante PDF a {$aporte->correo_donante}."
+            : "Aporte #{$aporte->codigo_comprobante} confirmado con éxito y sumado a la campaña (no se pudo despachar el correo a {$aporte->correo_donante}).";
+
+        return redirect()->back()->with('success', $mensaje);
     }
 
     /**

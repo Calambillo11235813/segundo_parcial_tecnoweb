@@ -20,10 +20,14 @@ class Aporte extends Model
 
     public const NOMBRE_ANONIMO = 'Donante Anónimo';
 
+    public const MODALIDAD_STRIPE = 'Tarjeta (Stripe)';
+
+    public const MONTO_MINIMO_STRIPE_BOB = 5.00;
+
     public const MODALIDADES = [
+        'Tarjeta (Stripe)',
         'Transferencia bancaria',
         'QR',
-        'Efectivo',
     ];
 
     protected $table = 'feder.aporte';

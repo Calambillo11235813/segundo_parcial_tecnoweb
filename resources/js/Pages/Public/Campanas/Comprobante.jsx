@@ -11,6 +11,8 @@ export default function Comprobante({ aporte }) {
     const campana = aporte.campana;
     const pago = campana?.config_pago || {};
     const tieneCuenta = Boolean(pago.banco || pago.numero_cuenta || pago.titular);
+    const esConfirmado = aporte.estado === 'Confirmado';
+    const esStripe = aporte.modalidad === 'Tarjeta (Stripe)';
     const formatearBs = (val) =>
         new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'BOB' }).format(val || 0);
 
@@ -25,9 +27,13 @@ export default function Comprobante({ aporte }) {
             <div className="max-w-2xl mx-auto px-4 py-10 space-y-6 print:max-w-none print:p-0 print:space-y-0">
                 {/* Alerta de Agradecimiento */}
                 <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-800 text-xs flex items-center space-x-3 shadow-xs print:hidden">
-                    <span className="text-2xl">🎉</span>
+                    <span className="text-2xl">{esConfirmado ? '✅' : '🎉'}</span>
                     <div>
-                        <p className="font-bold">¡Intención de aporte registrada exitosamente!</p>
+                        <p className="font-bold">
+                            {esConfirmado
+                                ? '¡Pago verificado y donación confirmada exitosamente!'
+                                : '¡Intención de aporte registrada exitosamente!'}
+                        </p>
                         <p className="text-emerald-700 mt-0.5">
                             Se despachó una copia oficial y mensaje de agradecimiento a <strong>{aporte.correo_donante}</strong>.
                         </p>
@@ -39,7 +45,7 @@ export default function Comprobante({ aporte }) {
                     {/* Cabecera del Recibo */}
                     <div className="bg-gradient-to-r from-emerald-800 to-slate-900 p-6 text-white text-center relative print:bg-none print:text-slate-900 print:border-b print:border-slate-300 print:py-4">
                         <span className="text-[10px] uppercase font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full print:bg-slate-100 print:text-slate-700">
-                            Comprobante Preliminar de Aporte
+                            {esConfirmado ? 'Comprobante Oficial de Donación' : 'Comprobante Preliminar de Aporte'}
                         </span>
                         <h1 className="text-2xl font-black mt-3 print:mt-2 print:text-xl">Fundación FEDER</h1>
                         <p className="text-xs text-emerald-200 mt-0.5 print:text-slate-600">Desarrollo Rural Chiquitano • Santa Cruz, Bolivia</p>
@@ -52,7 +58,9 @@ export default function Comprobante({ aporte }) {
                     <div className="p-6 sm:p-8 space-y-6 print:p-5 print:space-y-4">
                         {/* Importe Destacado */}
                         <div className="bg-slate-50 rounded-2xl p-5 text-center border border-slate-100 print:p-3">
-                            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Monto Comprometido</span>
+                            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                                {esConfirmado ? 'Monto Aportado y Confirmado' : 'Monto Comprometido'}
+                            </span>
                             <p className="text-3xl font-black text-emerald-700 mt-1">
                                 {formatearBs(aporte.monto)}
                             </p>
@@ -99,11 +107,27 @@ export default function Comprobante({ aporte }) {
                         </div>
 
                         {/* Instrucciones según Modalidad */}
+                        {esStripe && esConfirmado ? (
+                            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1.5">
+                                <p className="font-bold flex items-center space-x-1.5">
+                                    <span>💳</span>
+                                    <span>Pago en línea confirmado con Stripe (BOB)</span>
+                                </p>
+                                <p className="leading-relaxed">
+                                    Tu pago con tarjeta por <strong>{formatearBs(aporte.monto)}</strong> fue verificado automáticamente y ya se encuentra sumado al avance de la campaña. No necesitas realizar ningún paso adicional.
+                                </p>
+                            </div>
+                        ) : (
                         <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 space-y-2">
                             <p className="font-bold flex items-center space-x-1.5">
                                 <span>📌</span>
                                 <span>Pasos finales para la confirmación de su aporte:</span>
                             </p>
+                            {esStripe && (
+                                <p className="leading-relaxed">
+                                    Tu transacción con tarjeta en Stripe (código <strong>{aporte.codigo_comprobante}</strong>) se encuentra en verificación. Si completaste el pago, el estado se actualizará a <strong>Confirmado</strong> automáticamente.
+                                </p>
+                            )}
                             {aporte.modalidad === 'QR' && (
                                 <div className="space-y-3">
                                     <p>
@@ -165,6 +189,7 @@ export default function Comprobante({ aporte }) {
                                 </p>
                             )}
                         </div>
+                        )}
 
                         {/* Acciones */}
                         <div className="pt-2 flex flex-col sm:flex-row justify-between items-center gap-3 print:hidden">

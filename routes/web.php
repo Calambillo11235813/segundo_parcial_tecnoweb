@@ -40,6 +40,9 @@ Route::get('/campanas/{id}', [PublicCampanaController::class, 'show'])->name('pu
 Route::get('/campanas/{id}/ficha-pdf', [PublicCampanaController::class, 'descargarFichaPdf'])->name('public.campanas.pdf');
 Route::get('/campanas/{id}/donar', [PublicAporteController::class, 'create'])->name('public.donaciones.create');
 Route::post('/campanas/{id}/donar', [PublicAporteController::class, 'store'])->name('public.donaciones.store');
+Route::get('/donaciones/{id}/stripe/exito', [PublicAporteController::class, 'stripeExito'])->name('public.donaciones.stripe.exito');
+Route::get('/donaciones/{id}/stripe/cancelado', [PublicAporteController::class, 'stripeCancelado'])->name('public.donaciones.stripe.cancelado');
+Route::post('/stripe/webhook', [PublicAporteController::class, 'stripeWebhook'])->name('stripe.webhook');
 Route::get('/donaciones/{id}/comprobante', [PublicAporteController::class, 'comprobante'])->name('public.donaciones.comprobante');
 Route::get('/donaciones/{id}/comprobante-pdf', [PublicAporteController::class, 'descargarComprobantePdf'])->name('public.donaciones.pdf');
 Route::get('/contacto', [PublicConsultaController::class, 'create'])->name('public.contacto.index');

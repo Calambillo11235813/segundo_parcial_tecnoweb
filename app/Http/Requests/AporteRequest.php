@@ -25,6 +25,10 @@ class AporteRequest extends FormRequest
      */
     public function rules(): array
     {
+        $montoMinimo = $this->input('modalidad') === Aporte::MODALIDAD_STRIPE
+            ? Aporte::MONTO_MINIMO_STRIPE_BOB
+            : 1;
+
         return [
             'es_anonimo'     => ['nullable', 'boolean'],
             'nombre_donante' => [
@@ -34,7 +38,7 @@ class AporteRequest extends FormRequest
                 'max:150',
             ],
             'correo_donante' => ['required', 'email', 'max:150'],
-            'monto'          => ['required', 'numeric', 'min:1', 'max:99999999.99'],
+            'monto'          => ['required', 'numeric', "min:{$montoMinimo}", 'max:99999999.99'],
             'modalidad'      => ['required', 'string', Rule::in(Aporte::MODALIDADES)],
             'campana_id'     => [
                 'required',
@@ -51,12 +55,16 @@ class AporteRequest extends FormRequest
      */
     public function messages(): array
     {
+        $minStripe = number_format(Aporte::MONTO_MINIMO_STRIPE_BOB, 2, '.', '');
+
         return [
             'nombre_donante.required' => 'El nombre completo del donante es obligatorio.',
             'correo_donante.required' => 'El correo electrónico es indispensable para emitir su comprobante.',
             'correo_donante.email'    => 'Ingrese un correo electrónico válido.',
             'monto.required'          => 'Debe ingresar un monto para su aporte.',
-            'monto.min'               => 'El monto mínimo de donación es de 1 Boliviano.',
+            'monto.min'               => $this->input('modalidad') === Aporte::MODALIDAD_STRIPE
+                ? "El monto mínimo para donaciones con tarjeta (Stripe) es de Bs. {$minStripe}."
+                : 'El monto mínimo de donación es de 1 Boliviano.',
             'modalidad.required'      => 'Seleccione una modalidad de pago.',
             'modalidad.in'            => 'La modalidad seleccionada no es válida.',
             'campana_id.required'     => 'Debe especificar la campaña de destino.',

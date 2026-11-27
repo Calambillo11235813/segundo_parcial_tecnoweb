@@ -113,20 +113,6 @@ export default function SeccionPagos({
                 </div>
             </div>
 
-            <div>
-                <label className="block font-semibold text-slate-700 uppercase mb-1">
-                    Dirección / Punto de Recepción en Efectivo (Opcional)
-                </label>
-                <input
-                    type="text"
-                    value={data.pago_direccion_efectivo}
-                    onChange={(e) => setData('pago_direccion_efectivo', e.target.value)}
-                    placeholder="Ej: Oficina Central San Joaquín 2052, Santa Cruz (08:30 - 16:30)"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-                {errors.pago_direccion_efectivo && <p className="text-red-600 mt-1">{errors.pago_direccion_efectivo}</p>}
-            </div>
-
             {/* Carga de imagen del Código QR */}
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div className="w-28 h-28 rounded-xl border border-dashed border-slate-300 bg-white flex items-center justify-center overflow-hidden shrink-0">

@@ -81,7 +81,13 @@ export default function GraficosReportes({
                         <div className="space-y-4 pt-1">
                             {aportesPorModalidad.map((m) => {
                                 const porc = totalModalidad > 0 ? Math.round((Number(m.monto_total) / totalModalidad) * 100) : 0;
-                                const colorBarra = m.modalidad === 'QR' ? 'bg-cyan-600' : m.modalidad === 'Transferencia bancaria' ? 'bg-emerald-600' : 'bg-amber-500';
+                                const colorBarra = m.modalidad === 'Tarjeta (Stripe)'
+                                    ? 'bg-indigo-600'
+                                    : m.modalidad === 'QR'
+                                        ? 'bg-cyan-600'
+                                        : m.modalidad === 'Transferencia bancaria'
+                                            ? 'bg-emerald-600'
+                                            : 'bg-amber-500';
                                 return (
                                     <div key={m.modalidad} className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
                                         <div className="flex justify-between items-center text-xs">

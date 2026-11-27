@@ -68,16 +68,28 @@
             @endphp
             <div style="margin-top: 24px; padding: 14px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #065f46;">
                 <p style="margin: 0; font-size: 12px; color: #334155;">
-                    <strong>Instrucciones para completar tu aporte:</strong><br>
-                    @if($aporte->modalidad === 'Transferencia bancaria')
+                    @if($aporte->modalidad === \App\Models\Aporte::MODALIDAD_STRIPE)
+                        <strong>Confirmación de pago con tarjeta (Stripe):</strong><br>
+                        @if($aporte->estado === \App\Models\Aporte::ESTADO_CONFIRMADO)
+                            Tu pago en línea en Bolivianos (BOB) fue verificado y acreditado automáticamente a la campaña con el código <strong>{{ $aporte->codigo_comprobante }}</strong>. No necesitas realizar ningún paso adicional.
+                        @else
+                            Tu transacción en línea con código <strong>{{ $aporte->codigo_comprobante }}</strong> se encuentra en estado <strong>{{ $aporte->estado }}</strong>.
+                        @endif
+                    @elseif($aporte->modalidad === 'Transferencia bancaria')
+                        <strong>Instrucciones para completar tu aporte:</strong><br>
                         Realiza tu transferencia a: <strong>{{ $banco }}</strong> - Nro. Cuenta / Tarjeta: <strong>{{ $cuenta }}</strong> ({{ $nitCi ? "NIT/CI: {$nitCi}, " : '' }}Titular: {{ $titular }}). Envía tu comprobante a tesoreria@feder.org.bo citando el código <strong>{{ $aporte->codigo_comprobante }}</strong>.
                     @elseif($aporte->modalidad === 'QR')
+                        <strong>Instrucciones para completar tu aporte:</strong><br>
                         Escanea el código QR de la campaña emitido en tu comprobante desde tu aplicación bancaria móvil. Tu donación será validada en las próximas 24 horas.
                     @else
+                        <strong>Instrucciones para completar tu aporte:</strong><br>
                         Puedes apersonarte a nuestra oficina: <strong>{{ $direccionEfectivo }}</strong>.
                     @endif
                 </p>
             </div>
+            <p style="margin-top: 18px; font-size: 12px; color: #475569;">
+                📎 Adjuntamos a este correo tu comprobante en formato <strong>PDF</strong> (<code>comprobante_{{ $aporte->codigo_comprobante }}.pdf</code>) para tu respaldo.
+            </p>
         </div>
 
         <div class="footer">

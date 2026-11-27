@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+
+const MODALIDAD_STRIPE = 'Tarjeta (Stripe)';
 
 /**
  * Formulario interactivo de compromiso de donación (CU-06, RF-11).
  * Permite al cooperante ingresar sus datos, seleccionar modalidad y aportar.
  */
-export default function Donar({ campana, modalidades }) {
+export default function Donar({ campana, modalidades, stripeHabilitado = false, montoMinimoStripe = 5 }) {
+    const { flash } = usePage().props;
+    const modalidadInicial = (!stripeHabilitado && modalidades[0] === MODALIDAD_STRIPE)
+        ? (modalidades[1] || 'Transferencia bancaria')
+        : (modalidades[0] || 'Transferencia bancaria');
+
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         es_anonimo: false,
         nombre_donante: '',
         correo_donante: '',
         monto: '',
-        modalidad: modalidades[0] || 'Transferencia bancaria',
+        modalidad: modalidadInicial,
         campana_id: campana.id_campana,
     });
 
     const [montoRapido, setMontoRapido] = useState(null);
     const montosSugeridos = [50, 100, 250, 500, 1000];
+    const esStripe = data.modalidad === MODALIDAD_STRIPE;
 
     const seleccionarVisibilidad = (anonimo) => {
         setData('es_anonimo', anonimo);
@@ -40,7 +48,8 @@ export default function Donar({ campana, modalidades }) {
     };
 
     const montoNumerico = Number(data.monto);
-    const montoValido = Number.isFinite(montoNumerico) && montoNumerico >= 1;
+    const montoMinimoActual = esStripe ? Number(montoMinimoStripe || 5) : 1;
+    const montoValido = Number.isFinite(montoNumerico) && montoNumerico >= montoMinimoActual;
     const pago = campana.config_pago || {};
     const tieneCuenta = Boolean(pago.banco || pago.numero_cuenta || pago.titular);
 
@@ -67,6 +76,14 @@ export default function Donar({ campana, modalidades }) {
             </nav>
 
             <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+                {/* Alertas Flash (ej. pago cancelado en Stripe o error de conexión) */}
+                {flash?.error && (
+                    <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center space-x-3 shadow-xs">
+                        <span className="text-lg">⚠️</span>
+                        <p className="font-semibold">{flash.error}</p>
+                    </div>
+                )}
+
                 {/* Resumen del Proyecto y Descarga de Expediente */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="space-y-1">
@@ -248,37 +265,60 @@ export default function Donar({ campana, modalidades }) {
                     <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-2">Modalidad de Aporte *</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {modalidades.map((mod) => (
-                                <label
-                                    key={mod}
-                                    className={`p-3 rounded-xl border cursor-pointer flex flex-col justify-between transition ${data.modalidad === mod ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-500' : 'border-slate-200 hover:bg-slate-50'}`}
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="modalidad"
-                                            value={mod}
-                                            checked={data.modalidad === mod}
-                                            onChange={(e) => setData('modalidad', e.target.value)}
-                                            className="text-emerald-600 focus:ring-emerald-500 text-xs"
-                                        />
-                                        <span className="text-xs font-bold text-slate-800">{mod}</span>
-                                    </div>
-                                    <span className="text-[10px] text-slate-500 mt-2">
-                                        {mod === 'QR'
-                                            ? (pago.qr_imagen ? 'QR listo para escanear' : 'Escaneo Simple')
-                                            : mod === 'Transferencia bancaria'
-                                                ? (pago.banco || 'Cuenta bancaria de campaña')
-                                                : 'Entrega en oficina'}
-                                    </span>
-                                </label>
-                            ))}
+                            {modalidades.map((mod) => {
+                                const esModStripe = mod === MODALIDAD_STRIPE;
+                                const deshabilitada = esModStripe && !stripeHabilitado;
+
+                                return (
+                                    <label
+                                        key={mod}
+                                        className={`p-3 rounded-xl border flex flex-col justify-between transition ${
+                                            deshabilitada
+                                                ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed'
+                                                : data.modalidad === mod
+                                                    ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-500 cursor-pointer'
+                                                    : 'border-slate-200 hover:bg-slate-50 cursor-pointer'
+                                        }`}
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                name="modalidad"
+                                                value={mod}
+                                                disabled={deshabilitada}
+                                                checked={data.modalidad === mod}
+                                                onChange={(e) => setData('modalidad', e.target.value)}
+                                                className="text-emerald-600 focus:ring-emerald-500 text-xs"
+                                            />
+                                            <span className="text-xs font-bold text-slate-800">{mod}</span>
+                                        </div>
+                                        <span className="text-[10px] text-slate-500 mt-2">
+                                            {esModStripe
+                                                ? (stripeHabilitado ? 'Pago inmediato en BOB' : 'No configurado aún')
+                                                : mod === 'QR'
+                                                    ? (pago.qr_imagen ? 'QR listo para escanear' : 'Escaneo Simple')
+                                                    : (pago.banco || 'Cuenta bancaria de campaña')}
+                                        </span>
+                                    </label>
+                                );
+                            })}
                         </div>
+                        {errors.modalidad && <p className="text-red-500 text-[11px] mt-1">{errors.modalidad}</p>}
                     </div>
 
                     {/* Guía de la modalidad */}
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
                         <p className="font-bold text-slate-800">ℹ️ Información de {data.modalidad}:</p>
+                        {esStripe && (
+                            <div className="space-y-1.5">
+                                <p className="leading-relaxed">
+                                    Al continuar serás redirigido a la pasarela segura de <strong>Stripe Checkout</strong> para pagar con tarjeta de débito o crédito en <strong>Bolivianos (BOB)</strong>.
+                                </p>
+                                <p className="text-[11px] text-emerald-700 font-semibold">
+                                    ✓ Confirmación automática e inmediata del aporte (monto mínimo: Bs. {Number(montoMinimoStripe || 5).toFixed(2)}).
+                                </p>
+                            </div>
+                        )}
                         {data.modalidad === 'QR' && (
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 {pago.qr_imagen && (
@@ -307,11 +347,6 @@ export default function Donar({ campana, modalidades }) {
                                 <p>Esta campaña aún no tiene una cuenta bancaria personalizada configurada. Al confirmar, recibirás los datos de tesorería en tu comprobante.</p>
                             )
                         )}
-                        {data.modalidad === 'Efectivo' && (
-                            <p>
-                                Punto de recepción: <strong>{pago.direccion_efectivo || 'Oficina Central: San Joaquín 2052, Santa Cruz (Horario 08:30 - 16:30)'}</strong>.
-                            </p>
-                        )}
                     </div>
 
                     {/* Botones de acción */}
@@ -321,14 +356,20 @@ export default function Donar({ campana, modalidades }) {
                         </Link>
                         <button
                             type="submit"
-                            disabled={processing}
-                            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
+                            disabled={processing || (esStripe && !stripeHabilitado)}
+                            className={`w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-xs shadow-md transition disabled:opacity-50 ${
+                                esStripe ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-orange-600 hover:bg-orange-700'
+                            }`}
                         >
                             {processing
-                                ? 'Registrando...'
-                                : montoValido
-                                    ? `❤️ Confirmar Bs. ${montoNumerico.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                    : '❤️ Confirmar y Generar Comprobante'}
+                                ? (esStripe ? 'Conectando con Stripe...' : 'Registrando...')
+                                : esStripe
+                                    ? (montoValido
+                                        ? `💳 Pagar Bs. ${montoNumerico.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} con Stripe`
+                                        : '💳 Continuar al Pago con Stripe')
+                                    : (montoValido
+                                        ? `❤️ Confirmar Bs. ${montoNumerico.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                        : '❤️ Confirmar y Generar Comprobante')}
                         </button>
                     </div>
                 </form>

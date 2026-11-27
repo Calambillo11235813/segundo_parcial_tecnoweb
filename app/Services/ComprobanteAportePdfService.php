@@ -83,12 +83,25 @@ class ComprobanteAportePdfService
 
         // Sección 2: Instrucciones según Modalidad
         $y -= 10;
-        $stream .= "BT /F2 11 Tf 0.10 0.12 0.15 rg 45 {$y} Td (INSTRUCCIONES PARA COMPLETAR SU APORTE) Tj ET\n";
+        $tituloSeccionPago = $aporte->modalidad === Aporte::MODALIDAD_STRIPE && $aporte->estado === Aporte::ESTADO_CONFIRMADO
+            ? 'CONFIRMACION DE PAGO EN LINEA (STRIPE)'
+            : 'INSTRUCCIONES PARA COMPLETAR SU APORTE';
+        $stream .= "BT /F2 11 Tf 0.10 0.12 0.15 rg 45 {$y} Td ({$tituloSeccionPago}) Tj ET\n";
         $y -= 8;
         $stream .= "0.85 0.87 0.90 RG 0.8 w 45 {$y} m 550 {$y} l S\n";
         $y -= 20;
 
-        if ($aporte->modalidad === 'Transferencia bancaria') {
+        if ($aporte->modalidad === Aporte::MODALIDAD_STRIPE) {
+            if ($aporte->estado === Aporte::ESTADO_CONFIRMADO) {
+                $stream .= "BT /F2 9.5 Tf 0.02 0.45 0.30 rg 50 {$y} Td (Pago procesado y confirmado automaticamente en Bolivianos (BOB) mediante Stripe.) Tj ET\n";
+                $y -= 18;
+                $stream .= "BT /F1 9 Tf 0.35 0.35 0.35 rg 50 {$y} Td (Su aporte ya fue acreditado al monto recaudado de la campana. Codigo: {$codigo}.) Tj ET\n";
+            } else {
+                $stream .= "BT /F1 9.5 Tf 0.2 0.2 0.2 rg 50 {$y} Td (Transaccion iniciada con tarjeta mediante Stripe en Bolivianos (BOB).) Tj ET\n";
+                $y -= 18;
+                $stream .= "BT /F1 9 Tf 0.35 0.35 0.35 rg 50 {$y} Td (Estado actual: {$estado}. Conserve el codigo {$codigo} para referencia.) Tj ET\n";
+            }
+        } elseif ($aporte->modalidad === 'Transferencia bancaria') {
             $banco = $this->sanearTexto($pago['banco'] ?? 'Entidad bancaria asignada por FEDER');
             $cuenta = $this->sanearTexto($pago['numero_cuenta'] ?? 'Consultar con tesoreria');
             $titular = $this->sanearTexto($pago['titular'] ?? 'Fundacion FEDER');
